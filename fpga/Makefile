@@ -86,6 +86,7 @@ ifeq ($(SUB_PROJECT),arty100t)
 	BOARD             ?= arty_a7_100
 	FPGA_BRAND        ?= xilinx
 endif
+
 ifeq ($(SUB_PROJECT),datastorm)
 	SBT_PROJECT       ?= chipyard_fpga
 	MODEL             ?= DatastormHarness
@@ -98,6 +99,20 @@ ifeq ($(SUB_PROJECT),datastorm)
 	TOP               ?= ChipTop
 	BOARD			  ?= trenz_datastorm
 	FPGA_BRAND        ?= altera
+
+ifeq ($(SUB_PROJECT),cmoda7)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= CmodA7Harness
+	VLOG_MODEL        ?= CmodA7Harness
+	MODEL_PACKAGE     ?= chipyard.fpga.cmoda7
+	CONFIG            ?= TinyRocketCmodConfig
+	CONFIG_PACKAGE    ?= chipyard.fpga.cmoda7
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= cmod_a7
+	FPGA_BRAND        ?= xilinx
+
 endif
 
 export USE_CHISEL6=1

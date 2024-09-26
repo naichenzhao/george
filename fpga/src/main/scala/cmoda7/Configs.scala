@@ -48,7 +48,7 @@ class WithCmodA7Tweaks(freqMHz: Double = 60) extends Config(
 
 class TinyRocketCmodConfig extends Config(
   new WithCmodA7Tweaks ++
-  new freechips.rocketchip.subsystem.WithNBreakpoints(2) ++
+  // new freechips.rocketchip.subsystem.WithNBreakpoints(2) ++
 
   new riskybear.WithRobotJoint(address = 0x13000000) ++
   new WithCmodA7Joints ++

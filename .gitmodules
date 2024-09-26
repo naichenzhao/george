@@ -9,7 +9,7 @@
 	url = https://github.com/riscv-boom/riscv-boom.git
 [submodule "generators/caliptra-aes-acc"]
 	path = generators/caliptra-aes-acc
-	url = https://github.com/ucb-bar/caliptra-aes-acc.gits
+	url = https://github.com/ucb-bar/caliptra-aes-acc.git
 [submodule "generators/constellation"]
 	path = generators/constellation
 	url = https://github.com/ucb-bar/constellation.git

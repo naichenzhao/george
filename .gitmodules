@@ -154,3 +154,6 @@
 [submodule "generators/vexiiriscv"]
 	path = generators/vexiiriscv
 	url = https://github.com/ucb-bar/vexiiriscv-tile.git
+[submodule "generators/riskybear"]
+	path = generators/riskybear
+	url = git@github.com:naichenzhao/riskybear-lower-fpga.git

@@ -88,9 +88,6 @@
 [submodule "toolchains/riscv-tools/riscv-isa-sim"]
 	path = toolchains/riscv-tools/riscv-isa-sim
 	url = https://github.com/riscv-software-src/riscv-isa-sim.git
-[submodule "toolchains/riscv-tools/riscv-openocd"]
-	path = toolchains/riscv-tools/riscv-openocd
-	url = https://github.com/riscv/riscv-openocd.git
 [submodule "toolchains/riscv-tools/riscv-pk"]
 	path = toolchains/riscv-tools/riscv-pk
 	url = https://github.com/riscv-software-src/riscv-pk.git
@@ -154,3 +151,6 @@
 [submodule "generators/vexiiriscv"]
 	path = generators/vexiiriscv
 	url = https://github.com/ucb-bar/vexiiriscv-tile.git
+[submodule "generators/riskybear"]
+	path = generators/riskybear
+	url = git@github.com:naichenzhao/riskybear-lower-fpga.git

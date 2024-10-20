@@ -25,23 +25,9 @@ class WithCmodA7UARTTSI extends HarnessBinder({
     val harnessIO = IO(new UARTPortIO(port.io.uartParams)).suggestName("uart_tsi")
     harnessIO <> port.io.uart
     val packagePinsWithPackageIOs = Seq(
-      // ("J17" , IOPin(harnessIO.rxd)),
-      // ("J18", IOPin(harnessIO.txd)))
       ("V2" , IOPin(harnessIO.rxd)),
       ("W3", IOPin(harnessIO.txd)))
 
-    // println("UART FOUND")
-    // println(port.uartNo)
-
-    // if (port.uartNo == 0) {
-    //   val packagePinsWithPackageIOs = Seq(
-    //   ("J17" , IOPin(harnessIO.rxd)),
-    //   ("J18", IOPin(harnessIO.txd)))
-    // } else {
-    //   val packagePinsWithPackageIOs = Seq(
-    //   ("V2" , IOPin(harnessIO.rxd)),
-    //   ("W3", IOPin(harnessIO.txd)))
-    // }
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       ath.xdc.addPackagePin(io, pin)
       ath.xdc.addIOStandard(io, "LVCMOS33")
@@ -57,55 +43,55 @@ class WithCmodA7UARTTSI extends HarnessBinder({
 })
 
 // Uses PMOD JA/JB
-// class WithCmodA7SerialTLToGPIO extends HarnessBinder({
-//   case (th: HasHarnessInstantiators, port: SerialTLPort, chipId: Int) => {
-//     val artyTh = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[CmodA7Harness]
-//     val harnessIO = IO(chiselTypeOf(port.io)).suggestName("serial_tl")
-//     harnessIO <> port.io
+class WithCmodA7SerialTLToGPIO extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: SerialTLPort, chipId: Int) => {
+    val artyTh = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[CmodA7Harness]
+    val harnessIO = IO(chiselTypeOf(port.io)).suggestName("serial_tl")
+    harnessIO <> port.io
 
-//     harnessIO match {
-//       case io: DecoupledPhitIO => {
-//         val clkIO = io match {
-//           case io: InternalSyncPhitIO => IOPin(io.clock_out)
-//           case io: ExternalSyncPhitIO => IOPin(io.clock_in)
-//         }
-//         val packagePinsWithPackageIOs = Seq(
-//           ("G13", clkIO),
-//           ("B11", IOPin(io.out.valid)),
-//           ("A11", IOPin(io.out.ready)),
-//           ("D12", IOPin(io.in.valid)),
-//           ("D13", IOPin(io.in.ready)),
-//           ("B18", IOPin(io.out.bits.phit, 0)),
-//           ("A18", IOPin(io.out.bits.phit, 1)),
-//           ("K16", IOPin(io.out.bits.phit, 2)),
-//           ("E15", IOPin(io.out.bits.phit, 3)),
-//           ("E16", IOPin(io.in.bits.phit, 0)),
-//           ("D15", IOPin(io.in.bits.phit, 1)),
-//           ("C15", IOPin(io.in.bits.phit, 2)),
-//           ("J17", IOPin(io.in.bits.phit, 3))
-//         )
-//         packagePinsWithPackageIOs foreach { case (pin, io) => {
-//           artyTh.xdc.addPackagePin(io, pin)
-//           artyTh.xdc.addIOStandard(io, "LVCMOS33")
-//         }}
+    harnessIO match {
+      case io: DecoupledPhitIO => {
+        val clkIO = io match {
+          case io: InternalSyncPhitIO => IOPin(io.clock_out)
+          case io: ExternalSyncPhitIO => IOPin(io.clock_in)
+        }
+        val packagePinsWithPackageIOs = Seq(
+          ("G13", clkIO),
+          ("B11", IOPin(io.out.valid)),
+          ("A11", IOPin(io.out.ready)),
+          ("D12", IOPin(io.in.valid)),
+          ("D13", IOPin(io.in.ready)),
+          ("B18", IOPin(io.out.bits.phit, 0)),
+          ("A18", IOPin(io.out.bits.phit, 1)),
+          ("K16", IOPin(io.out.bits.phit, 2)),
+          ("E15", IOPin(io.out.bits.phit, 3)),
+          ("E16", IOPin(io.in.bits.phit, 0)),
+          ("D15", IOPin(io.in.bits.phit, 1)),
+          ("C15", IOPin(io.in.bits.phit, 2)),
+          ("J17", IOPin(io.in.bits.phit, 3))
+        )
+        packagePinsWithPackageIOs foreach { case (pin, io) => {
+          artyTh.xdc.addPackagePin(io, pin)
+          artyTh.xdc.addIOStandard(io, "LVCMOS33")
+        }}
 
-//         // Don't add IOB to the clock, if its an input
-//         io match {
-//           case io: InternalSyncPhitIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
-//             artyTh.xdc.addIOB(io)
-//           }}
-//           case io: ExternalSyncPhitIO => packagePinsWithPackageIOs.drop(1).foreach { case (pin, io) => {
-//             artyTh.xdc.addIOB(io)
-//           }}
-//         }
+        // Don't add IOB to the clock, if its an input
+        io match {
+          case io: InternalSyncPhitIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
+            artyTh.xdc.addIOB(io)
+          }}
+          case io: ExternalSyncPhitIO => packagePinsWithPackageIOs.drop(1).foreach { case (pin, io) => {
+            artyTh.xdc.addIOB(io)
+          }}
+        }
 
-//         artyTh.sdc.addClock("ser_tl_clock", clkIO, 100)
-//         artyTh.sdc.addGroup(pins = Seq(clkIO))
-//         artyTh.xdc.clockDedicatedRouteFalse(clkIO)
-//       }
-//     }
-//   }
-// })
+        artyTh.sdc.addClock("ser_tl_clock", clkIO, 100)
+        artyTh.sdc.addGroup(pins = Seq(clkIO))
+        artyTh.xdc.clockDedicatedRouteFalse(clkIO)
+      }
+    }
+  }
+})
 
 // Maps the UART device to the on-board USB-UART
 class WithCmodA7UART(rxdPin: String = "J17", txdPin: String = "J18") extends HarnessBinder({

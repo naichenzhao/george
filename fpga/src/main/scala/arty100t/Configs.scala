@@ -36,8 +36,10 @@ class WithArty100TTweaks(freqMHz: Double = 50) extends Config(
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
+
   new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
   new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb on ARTY
+  
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
 class RocketArty100TConfig extends Config(
@@ -55,4 +57,9 @@ class BringupArty100TConfig extends Config(
   new WithArty100TSerialTLToGPIO ++
   new WithArty100TTweaks(freqMHz = 50) ++
   new testchipip.serdes.WithSerialTLPHYParams(testchipip.serdes.InternalSyncSerialPhyParams(freqMHz=50)) ++
+
+  new riskybear.WithRobotJoint(address = 0x71000000) ++
+  new chipyard.harness.WithJointsTiedOff ++
+  // new WithCmodA7Joints ++
+
   new chipyard.ChipBringupHostConfig)

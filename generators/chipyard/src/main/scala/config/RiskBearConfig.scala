@@ -27,7 +27,7 @@ class RiskyBearConfig extends Config(
 
 
 class RiskyBearRocketConfig extends Config(
-  new WithRobotJoint(address = 0x13000000) ++
+  new WithRobotJoint() ++
   new chipyard.harness.WithJointsTiedOff ++
 
   new freechips.rocketchip.subsystem.WithoutTLMonitors ++

@@ -16,6 +16,10 @@ import sifive.fpgashells.shell.{DesignKey}
 import testchipip.serdes.{SerialTLKey}
 
 import chipyard.{BuildSystem}
+import org.chipsalliance.cde.config.{Config}
+import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.subsystem.{MBUS, SBUS}
+import testchipip.soc.{OBUS}
 
 // don't use FPGAShell's DesignKey
 class WithNoDesignKey extends Config((site, here, up) => {
@@ -32,32 +36,18 @@ class WithCmodA7Tweaks(freqMHz: Double = 50) extends Config(
   new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
   new chipyard.harness.WithSerialTLTiedOff ++
   new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
-  new chipyard.config.WithMemoryBusFrequency(freqMHz) ++
-  new chipyard.config.WithFrontBusFrequency(freqMHz) ++
-  new chipyard.config.WithSystemBusFrequency(freqMHz) ++
-  new chipyard.config.WithPeripheryBusFrequency(freqMHz) ++
-  new chipyard.config.WithControlBusFrequency(freqMHz) ++
-  new chipyard.config.WithOffchipBusFrequency(freqMHz) ++
+  new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
   
-  new freechips.rocketchip.subsystem.WithNoMemPort ++         // remove offchip mem port
-  new testchipip.serdes.WithNoSerialTL ++
+  // new freechips.rocketchip.subsystem.WithNoMemPort ++         // remove offchip mem port
+  // new testchipip.serdes.WithNoSerialTL ++
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
-
-// class MicroRocketConfig extends Config(
-//   new chipyard.harness.WithDontTouchChipTopPorts(false) ++        // TODO FIX: Don't dontTouch the ports
-//   new testchipip.soc.WithNoScratchpads ++                         // All memory is the Rocket TCMs
-//   new freechips.rocketchip.subsystem.WithIncoherentBusTopology ++ // use incoherent bus topology
-//   new freechips.rocketchip.subsystem.WithNBanks(0) ++             // remove L2$
-//   new freechips.rocketchip.subsystem.WithNoMemPort ++             // remove backing memory
-//   new freechips.rocketchip.rocket.With1MicroCore ++                // single tiny rocket-core
-//   new chipyard.config.AbstractConfig)
 
 class TinyRocketCmodConfig extends Config(
   new WithCmodA7Tweaks(freqMHz=60) ++
 
-  new riskybear.WithRobotJoint(address = 0x13000000) ++
+  new riskybear.WithRobotJoint(address=0x181000000L) ++
   new WithCmodA7Joints ++
 
   new chipyard.config.WithBroadcastManager ++ // no l2
@@ -65,10 +55,76 @@ class TinyRocketCmodConfig extends Config(
 
 class NoCoresCmodA7Config extends Config(
   new WithCmodA7SerialTLToGPIO ++
-  new WithCmodA7Tweaks ++
+  new WithCmodA7Tweaks(freqMHz=75) ++
 
-  new riskybear.WithRobotJoint(address = 0x71000000) ++
+  new riskybear.WithRobotJoint(address=0x181000000L) ++
   new WithCmodA7Joints ++
 
-  new testchipip.serdes.WithSerialTLPHYParams(testchipip.serdes.InternalSyncSerialPhyParams(freqMHz=50)) ++
-  new chipyard.ChipBringupHostConfig)
+  new CMODA7ChipBringupHostConfig)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
+class CMODA7ChipBringupHostConfig extends Config(
+  //=============================
+  // Set up TestHarness for standalone-sim
+  //=============================
+  new chipyard.harness.WithAbsoluteFreqHarnessClockInstantiator ++  // Generate absolute frequencies
+  new chipyard.harness.WithSerialTLTiedOff ++                       // when doing standalone sim, tie off the serial-tl port
+  new chipyard.harness.WithSimTSIToUARTTSI ++                       // Attach SimTSI-over-UART to the UART-TSI port
+  new chipyard.iobinders.WithSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
+
+  //=============================
+  // Setup the SerialTL side on the bringup device
+  //=============================
+  new testchipip.serdes.WithSerialTL(Seq(testchipip.serdes.SerialTLParams(
+    manager = Some(testchipip.serdes.SerialTLManagerParams(
+      memParams = Seq(testchipip.serdes.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+        address = BigInt("00000000", 16),
+        size    = BigInt("70000000", 16)
+      ))
+    )),
+    client = Some(testchipip.serdes.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+    phyParams = testchipip.serdes.InternalSyncSerialPhyParams(phitWidth=1, flitWidth=16, freqMHz = 75) // bringup platform provides the clock
+  ))) ++
+
+  //============================
+  // Setup bus topology on the bringup system
+  //============================
+  new testchipip.soc.WithOffchipBusClient(SBUS,                                // offchip bus hangs off the SBUS
+    blockRange = AddressSet.misaligned(0x80000000L, (BigInt(1) << 30) * 4)) ++ // offchip bus should not see the main memory of the testchip, since that can be accessed directly
+  new testchipip.soc.WithOffchipBus ++                                         // offchip bus
+
+  //=============================
+  // Set up memory on the bringup system
+  //=============================
+  new freechips.rocketchip.subsystem.WithExtMemSize((1 << 30) * 4L) ++         // match what the chip believes the max size should be
+
+  //=============================
+  // Generate the TSI-over-UART side of the bringup system
+  //=============================
+  new testchipip.tsi.WithUARTTSIClient(initBaudRate = BigInt(921600)) ++       // nonstandard baud rate to improve performance
+
+  //=============================
+  // Set up clocks of the bringup system
+  //=============================
+  new chipyard.clocking.WithPassthroughClockGenerator ++ // pass all the clocks through, since this isn't a chip
+  new chipyard.config.WithUniformBusFrequencies(75.0) ++   // run all buses of this system at 75 MHz
+
+  // Base is the no-cores config
+  new chipyard.NoCoresConfig)

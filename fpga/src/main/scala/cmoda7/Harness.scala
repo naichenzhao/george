@@ -33,6 +33,14 @@ class CmodA7Harness(override implicit val p: Parameters) extends CmodA7Shell {
 
   harnessSysPLLNode := clockOverlay.overlayOutput.node
 
+  // val ddrOverlay = dp(DDROverlayKey).head.place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLLNode)).asInstanceOf[DDRArtyPlacedOverlay]
+  // val ddrClient = TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLMasterParameters.v1(
+  //   name = "chip_ddr",
+  //   sourceId = IdRange(0, 1 << dp(ExtTLMem).get.master.idBits)
+  // )))))
+  // val ddrBlockDuringReset = LazyModule(new TLBlockDuringReset(1))
+  // ddrOverlay.overlayOutput.ddr := ddrBlockDuringReset.node := ddrClient
+
   val ledOverlays = dp(LEDOverlayKey).map(_.place(LEDDesignInput()))
   val all_leds = ledOverlays.map(_.overlayOutput.led)
   val status_leds = all_leds.take(3)

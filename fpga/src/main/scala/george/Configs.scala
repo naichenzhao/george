@@ -51,6 +51,9 @@ class RocketGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGASerialTLToGPIO ++
   new WithGeorgeFPGATweaks ++
 
+  // new testchipip.soc.WithSbusScratchpad(base=0x70000000L, banks=4) ++
+  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false) ++          // Use GCD Chisel, connect Tilelink
+
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
 

@@ -25,8 +25,10 @@ class WithGeorgeFPGAUARTTSI extends HarnessBinder({
     val harnessIO = IO(new UARTPortIO(port.io.uartParams)).suggestName("uart_tsi")
     harnessIO <> port.io.uart
     val packagePinsWithPackageIOs = Seq(
-      ("A9" , IOPin(harnessIO.rxd)),
-      ("D10", IOPin(harnessIO.txd)))
+      // ("A9" , IOPin(harnessIO.rxd)),
+      // ("D10", IOPin(harnessIO.txd)))
+      ("D10" , IOPin(harnessIO.rxd)),
+      ("A9", IOPin(harnessIO.txd)))
 
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       ath.xdc.addPackagePin(io, pin)

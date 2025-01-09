@@ -229,7 +229,7 @@ trait CanHavePeripheryGCD { this: BaseSubsystem =>
 // DOC include end: GCD lazy trait
 
 // DOC include start: GCD config fragment
-class WithGCD(useAXI4: Boolean = false, useBlackBox: Boolean = false) extends Config((site, here, up) => {
-  case GCDKey => Some(GCDParams(useAXI4 = useAXI4, useBlackBox = useBlackBox))
+class WithGCD(useAXI4: Boolean = false, useBlackBox: Boolean = false, address: BigInt = 0x4000) extends Config((site, here, up) => {
+  case GCDKey => Some(GCDParams(useAXI4 = useAXI4, useBlackBox = useBlackBox, address=address))
 })
 // DOC include end: GCD config fragment

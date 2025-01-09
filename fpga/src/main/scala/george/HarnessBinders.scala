@@ -18,6 +18,7 @@ import chipyard._
 import chipyard.harness._
 import chipyard.iobinders._
 import testchipip.serdes._
+import testchipip.serdes.old._
 
 class WithGeorgeFPGAUARTTSI extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: UARTTSIPort, chipId: Int) => {
@@ -25,8 +26,6 @@ class WithGeorgeFPGAUARTTSI extends HarnessBinder({
     val harnessIO = IO(new UARTPortIO(port.io.uartParams)).suggestName("uart_tsi")
     harnessIO <> port.io.uart
     val packagePinsWithPackageIOs = Seq(
-      // ("A9" , IOPin(harnessIO.rxd)),
-      // ("D10", IOPin(harnessIO.txd)))
       ("D10" , IOPin(harnessIO.rxd)),
       ("A9", IOPin(harnessIO.txd)))
 
@@ -38,15 +37,15 @@ class WithGeorgeFPGAUARTTSI extends HarnessBinder({
   }
 })
 
-// class WithGeorgeFPGATDDRTL extends HarnessBinder({
-//   case (th: HasHarnessInstantiators, port: TLMemPort, chipId: Int) => {
-//     val GeorgeFPGATh = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
-//     val bundles = GeorgeFPGATh.ddrClient.out.map(_._1)
-//     val ddrClientBundle = Wire(new HeterogeneousBag(bundles.map(_.cloneType)))
-//     bundles.zip(ddrClientBundle).foreach { case (bundle, io) => bundle <> io }
-//     ddrClientBundle <> port.io
-//   }
-// })
+class WithGeorgeFPGATDDRTL extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: TLMemPort, chipId: Int) => {
+    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
+    val bundles = ath.ddrClient.out.map(_._1)
+    val ddrClientBundle = Wire(new HeterogeneousBag(bundles.map(_.cloneType)))
+    bundles.zip(ddrClientBundle).foreach { case (bundle, io) => bundle <> io }
+    ddrClientBundle <> port.io
+  }
+})
 
 class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: SerialTLPort, chipId: Int) => {
@@ -61,33 +60,57 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
           case io: ExternalSyncPhitIO => IOPin(io.clock_in)
         }
         val packagePinsWithPackageIOs = Seq(
+          // ("J17", clkIO),
+
+          // ("G18", IOPin(io.out.valid)),
+          // ("H17", IOPin(io.out.ready)),
+          // ("E18", IOPin(io.out.bits.phit, 0)),
+          // ("D15", IOPin(io.out.bits.phit, 1)),
+          // ("C17", IOPin(io.out.bits.phit, 2)),
+          // ("E17", IOPin(io.out.bits.phit, 3)),
+          // ("D17", IOPin(io.out.bits.phit, 4)),
+          // ("B18", IOPin(io.out.bits.phit, 5)),
+          // ("B17", IOPin(io.out.bits.phit, 6)),
+          // ("C15", IOPin(io.out.bits.phit, 7)),
+
+          // ("J18",IOPin(io.in.valid)),
+          // ("E16", IOPin(io.in.ready)),
+          // ("G17", IOPin(io.in.bits.phit, 0)),
+          // ("A18", IOPin(io.in.bits.phit, 1)),
+          // ("C16", IOPin(io.in.bits.phit, 2)),
+          // ("D18", IOPin(io.in.bits.phit, 3)),
+          // ("F18", IOPin(io.in.bits.phit, 4)),
+          // ("B17", IOPin(io.in.bits.phit, 5)),
+          // ("A15", IOPin(io.in.bits.phit, 6)),
+          // ("A16", IOPin(io.in.bits.phit, 7))
+
           ("J17", clkIO),
 
-          ("G18", IOPin(io.out.valid)),
-          ("H17", IOPin(io.out.ready)),
-          ("E18", IOPin(io.out.bits.phit, 0)),
-          ("D15", IOPin(io.out.bits.phit, 1)),
-          ("C17", IOPin(io.out.bits.phit, 2)),
-          ("E17", IOPin(io.out.bits.phit, 3)),
-          ("D17", IOPin(io.out.bits.phit, 4)),
-          ("B18", IOPin(io.out.bits.phit, 5)),
-          ("B17", IOPin(io.out.bits.phit, 6)),
-          ("C15", IOPin(io.out.bits.phit, 7)),
+          ("G18", IOPin(io.in.valid)),
+          ("H17", IOPin(io.in.ready)),
+          ("E18", IOPin(io.in.bits.phit, 0)),
+          ("D15", IOPin(io.in.bits.phit, 1)),
+          ("C17", IOPin(io.in.bits.phit, 2)),
+          ("E17", IOPin(io.in.bits.phit, 3)),
+          ("D17", IOPin(io.in.bits.phit, 4)),
+          ("B18", IOPin(io.in.bits.phit, 5)),
+          ("B16", IOPin(io.in.bits.phit, 6)),
+          ("C15", IOPin(io.in.bits.phit, 7)),
 
-          ("J18",IOPin(io.in.valid)),
-          ("E16", IOPin(io.in.ready)),
-          ("G17", IOPin(io.in.bits.phit, 0)),
-          ("A18", IOPin(io.in.bits.phit, 1)),
-          ("C16", IOPin(io.in.bits.phit, 2)),
-          ("D18", IOPin(io.in.bits.phit, 3)),
-          ("F18", IOPin(io.in.bits.phit, 4)),
-          ("B17", IOPin(io.in.bits.phit, 5)),
-          ("A15", IOPin(io.in.bits.phit, 6)),
-          ("A16", IOPin(io.in.bits.phit, 7))
+          ("J18", IOPin(io.out.valid)),
+          ("E16", IOPin(io.out.ready)),
+          ("G17", IOPin(io.out.bits.phit, 0)),
+          ("A18", IOPin(io.out.bits.phit, 1)),
+          ("C16", IOPin(io.out.bits.phit, 2)),
+          ("D18", IOPin(io.out.bits.phit, 3)),
+          ("F18", IOPin(io.out.bits.phit, 4)),
+          ("B17", IOPin(io.out.bits.phit, 5)),
+          ("A15", IOPin(io.out.bits.phit, 6)),
+          ("A16", IOPin(io.out.bits.phit, 7)),
         )
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)
-          ath.xdc.addIOStandard(io, "LVCMOS33")
+          ath.xdc.addIOStandard(io, "LVCMOS12")
         }}
 
         // Don't add IOB to the clock, if its an input

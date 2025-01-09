@@ -135,6 +135,20 @@ ifeq ($(SUB_PROJECT),george)
 	MODEL             ?= GeorgeFPGAHarness
 	VLOG_MODEL        ?= GeorgeFPGAHarness
 	MODEL_PACKAGE     ?= chipyard.fpga.george
+	CONFIG            ?= BringupGeorgeFPGAConfig
+	CONFIG_PACKAGE    ?= chipyard.fpga.george
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= george
+	FPGA_BRAND        ?= xilinx
+endif
+
+ifeq ($(SUB_PROJECT),georgeRocket)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= GeorgeFPGAHarness
+	VLOG_MODEL        ?= GeorgeFPGAHarness
+	MODEL_PACKAGE     ?= chipyard.fpga.george
 	CONFIG            ?= RocketGeorgeFPGAConfig
 	CONFIG_PACKAGE    ?= chipyard.fpga.george
 	GENERATOR_PACKAGE ?= chipyard

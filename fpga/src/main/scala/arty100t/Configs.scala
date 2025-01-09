@@ -57,9 +57,6 @@ class BringupArty100TConfig extends Config(
   new WithArty100TSerialTLToGPIO ++
   new WithArty100TTweaks(freqMHz = 50) ++
   new testchipip.serdes.WithSerialTLPHYParams(testchipip.serdes.InternalSyncSerialPhyParams(freqMHz=50)) ++
-
-  new riskybear.WithRobotJoint(address = 0x71000000) ++
-  new chipyard.harness.WithJointsTiedOff ++
-  // new WithCmodA7Joints ++
+  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x1600000000L) ++          // Use GCD Chisel, connect Tilelink
 
   new chipyard.ChipBringupHostConfig)

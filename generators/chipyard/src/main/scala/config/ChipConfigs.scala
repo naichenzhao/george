@@ -65,22 +65,22 @@ class ChipBringupHostConfig extends Config(
   new chipyard.harness.WithAbsoluteFreqHarnessClockInstantiator ++  // Generate absolute frequencies
   new chipyard.harness.WithSerialTLTiedOff ++                       // when doing standalone sim, tie off the serial-tl port
   new chipyard.harness.WithSimTSIToUARTTSI ++                       // Attach SimTSI-over-UART to the UART-TSI port
-  new chipyard.iobinders.WithSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
+  new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
 
   //=============================
   // Setup the SerialTL side on the bringup device
   //=============================
-  new testchipip.serdes.WithSerialTL(Seq(testchipip.serdes.SerialTLParams(
-    manager = Some(testchipip.serdes.SerialTLManagerParams(
-      memParams = Seq(testchipip.serdes.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+  new testchipip.serdes.old.WithSerialTL(Seq(testchipip.serdes.old.SerialTLParams(
+    manager = Some(testchipip.serdes.old.SerialTLManagerParams(
+      memParams = Seq(testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
         address = BigInt("00000000", 16),
         size    = BigInt("80000000", 16)
       ))
     )),
-    client = Some(testchipip.serdes.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-    phyParams = testchipip.serdes.InternalSyncSerialPhyParams(phitWidth=4, flitWidth=16, freqMHz = 75) // bringup platform provides the clock
+    client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+    phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 40) // bringup platform provides the clock
   ))) ++
-
+  new testchipip.serdes.WithNoSerialTL ++
   //============================
   // Setup bus topology on the bringup system
   //============================

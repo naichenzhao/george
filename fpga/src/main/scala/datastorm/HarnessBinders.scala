@@ -30,35 +30,43 @@ class WithDatastormDDRTL extends HarnessBinder({
 })
 
 class WithDatastormSerialTLToFMC extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: SerialTLPort, chipId: Int) => {
+  case (th: HasHarnessInstantiators, port: OldSerialTLPort, chipId: Int) => {
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[DatastormHarness]
     val harnessIO = IO(chiselTypeOf(port.io)).suggestName("serial_tl")
     harnessIO <> port.io
 
     harnessIO match {
-      case io: DecoupledPhitIO => {
+      case io: testchipip.serdes.old.DecoupledSerialIO => {
         val clkIO = io match {
-          case io: InternalSyncPhitIO => IOPin(io.clock_out)
-          case io: ExternalSyncPhitIO => IOPin(io.clock_in)
+          case io: testchipip.serdes.old.InternalSyncSerialIO => IOPin(io.clock_out)
+          case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
         }
         val packagePinsWithPackageIOs = Seq(
-          ("PIN_C13", clkIO),
-          ("PIN_J12", IOPin(io.out.valid)),
-          ("PIN_K12", IOPin(io.out.ready)),
-          ("PIN_H12", IOPin(io.in.valid)),
-          ("PIN_H13", IOPin(io.in.ready)),
-          ("PIN_E9", IOPin(io.out.bits.phit, 0)),
-          ("PIN_D9", IOPin(io.out.bits.phit, 1)),
-          ("PIN_H14", IOPin(io.out.bits.phit, 2)),
-          ("PIN_G13", IOPin(io.out.bits.phit, 3)),
-          ("PIN_C12", IOPin(io.in.bits.phit, 0)),
-          ("PIN_B11", IOPin(io.in.bits.phit, 1)),
-          ("PIN_E8", IOPin(io.in.bits.phit, 2)),
-          ("PIN_D7", IOPin(io.in.bits.phit, 3))
+          ("PIN_D11", clkIO), //LA21_P
+          ("PIN_H7", IOPin(io.out.valid)), //LA29_N
+          ("PIN_D1", IOPin(io.out.ready)), //LA32_N
+          ("PIN_J7", IOPin(io.in.valid)),
+          ("PIN_B3", IOPin(io.in.ready)),
+          ("PIN_C3", IOPin(io.out.bits, 0)),
+          ("PIN_G10", IOPin(io.out.bits, 1)),
+          ("PIN_D10", IOPin(io.out.bits, 2)),
+          ("PIN_E1", IOPin(io.out.bits, 3)),
+          ("PIN_G8", IOPin(io.out.bits, 4)),
+          ("PIN_J9", IOPin(io.out.bits, 5)),
+          ("PIN_A4", IOPin(io.out.bits, 6)),
+          ("PIN_J10", IOPin(io.out.bits, 7)),
+          ("PIN_H8", IOPin(io.in.bits, 0)),
+          ("PIN_F10", IOPin(io.in.bits, 1)),
+          ("PIN_K7", IOPin(io.in.bits, 2)),
+          ("PIN_K8", IOPin(io.in.bits, 3)),
+          ("PIN_A3", IOPin(io.in.bits, 4)),
+          ("PIN_C2", IOPin(io.in.bits, 5)),
+          ("PIN_G12", IOPin(io.in.bits, 6)),
+          ("PIN_D2", IOPin(io.in.bits, 7))
         )
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.io_tcl.addPackagePin(io, pin)
-          ath.io_tcl.addIOStandard(io, "1.5 V")
+          ath.io_tcl.addIOStandard(io, "1.2 V")
         }}
 
         ath.sdc.addClock("ser_tl_clock", clkIO, 50)

@@ -54,59 +54,37 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
     harnessIO <> port.io
 
     harnessIO match {
-      case io: DecoupledPhitIO => {
+      case io: testchipip.serdes.old.DecoupledSerialIO => {
         val clkIO = io match {
-          case io: InternalSyncPhitIO => IOPin(io.clock_out)
-          case io: ExternalSyncPhitIO => IOPin(io.clock_in)
+          case io: testchipip.serdes.old.InternalSyncSerialIO => IOPin(io.clock_out)
+          case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
         }
         val packagePinsWithPackageIOs = Seq(
-          // ("J17", clkIO),
-
-          // ("G18", IOPin(io.out.valid)),
-          // ("H17", IOPin(io.out.ready)),
-          // ("E18", IOPin(io.out.bits.phit, 0)),
-          // ("D15", IOPin(io.out.bits.phit, 1)),
-          // ("C17", IOPin(io.out.bits.phit, 2)),
-          // ("E17", IOPin(io.out.bits.phit, 3)),
-          // ("D17", IOPin(io.out.bits.phit, 4)),
-          // ("B18", IOPin(io.out.bits.phit, 5)),
-          // ("B17", IOPin(io.out.bits.phit, 6)),
-          // ("C15", IOPin(io.out.bits.phit, 7)),
-
-          // ("J18",IOPin(io.in.valid)),
-          // ("E16", IOPin(io.in.ready)),
-          // ("G17", IOPin(io.in.bits.phit, 0)),
-          // ("A18", IOPin(io.in.bits.phit, 1)),
-          // ("C16", IOPin(io.in.bits.phit, 2)),
-          // ("D18", IOPin(io.in.bits.phit, 3)),
-          // ("F18", IOPin(io.in.bits.phit, 4)),
-          // ("B17", IOPin(io.in.bits.phit, 5)),
-          // ("A15", IOPin(io.in.bits.phit, 6)),
-          // ("A16", IOPin(io.in.bits.phit, 7))
-
           ("J17", clkIO),
 
           ("G18", IOPin(io.in.valid)),
           ("H17", IOPin(io.in.ready)),
-          ("E18", IOPin(io.in.bits.phit, 0)),
-          ("D15", IOPin(io.in.bits.phit, 1)),
-          ("C17", IOPin(io.in.bits.phit, 2)),
-          ("E17", IOPin(io.in.bits.phit, 3)),
-          ("D17", IOPin(io.in.bits.phit, 4)),
-          ("B18", IOPin(io.in.bits.phit, 5)),
-          ("B16", IOPin(io.in.bits.phit, 6)),
-          ("C15", IOPin(io.in.bits.phit, 7)),
+
+          ("E18", IOPin(io.in.bits, 0)),
+          ("D15", IOPin(io.in.bits, 1)),
+          ("C17", IOPin(io.in.bits, 2)),
+          ("E17", IOPin(io.in.bits, 3)),
+          ("D17", IOPin(io.in.bits, 4)),
+          ("B18", IOPin(io.in.bits, 5)),
+          ("B16", IOPin(io.in.bits, 6)),
+          ("C15", IOPin(io.in.bits, 7)),
 
           ("J18", IOPin(io.out.valid)),
           ("E16", IOPin(io.out.ready)),
-          ("G17", IOPin(io.out.bits.phit, 0)),
-          ("A18", IOPin(io.out.bits.phit, 1)),
-          ("C16", IOPin(io.out.bits.phit, 2)),
-          ("D18", IOPin(io.out.bits.phit, 3)),
-          ("F18", IOPin(io.out.bits.phit, 4)),
-          ("B17", IOPin(io.out.bits.phit, 5)),
-          ("A15", IOPin(io.out.bits.phit, 6)),
-          ("A16", IOPin(io.out.bits.phit, 7)),
+
+          ("G17", IOPin(io.out.bits, 0)),
+          ("A18", IOPin(io.out.bits, 1)),
+          ("C16", IOPin(io.out.bits, 2)),
+          ("D18", IOPin(io.out.bits, 3)),
+          ("F18", IOPin(io.out.bits, 4)),
+          ("B17", IOPin(io.out.bits, 5)),
+          ("A15", IOPin(io.out.bits, 6)),
+          ("A16", IOPin(io.out.bits, 7)),
         )
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)
@@ -115,10 +93,10 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
 
         // Don't add IOB to the clock, if its an input
         io match {
-          case io: InternalSyncPhitIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
+          case io: testchipip.serdes.old.InternalSyncSerialIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
             ath.xdc.addIOB(io)
           }}
-          case io: ExternalSyncPhitIO => packagePinsWithPackageIOs.drop(1).foreach { case (pin, io) => {
+          case io: testchipip.serdes.old.ExternalSyncSerialIO => packagePinsWithPackageIOs.drop(1).foreach { case (pin, io) => {
             ath.xdc.addIOB(io)
           }}
         }

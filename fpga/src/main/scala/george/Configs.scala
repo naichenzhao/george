@@ -42,6 +42,9 @@ class WithGeorgeFPGATweaks(freqMHz: Double = 50) extends Config(
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
+
+  new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
   
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
@@ -52,13 +55,8 @@ class RocketGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGASerialTLToGPIO ++
   new WithGeorgeFPGATweaks ++
 
-  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x1600000000L) ++          // Use GCD Chisel, connect Tilelink
-
-  new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
-
-  // new freechips.rocketchip.subsystem.WithNoMemPort ++         // remove offchip mem port
-  // new testchipip.serdes.WithNoSerialTL ++
+  new testchipip.soc.WithMbusScratchpad(base = 0x91000000L, size = 64 * 1024) ++                  // Create internal scratchpad bank for testing
+  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x90000000L) ++          // Use GCD Chisel, connect Tilelink
 
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
@@ -67,17 +65,11 @@ class RocketGeorgeFPGAConfig extends Config(
 
 class BringupGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGASerialTLToGPIO ++
-  new WithGeorgeFPGATweaks(freqMHz = 50) ++
-  
+  new WithGeorgeFPGATDDRTL ++
+  new WithGeorgeFPGATweaks() ++
 
-  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x90000000L) ++          // Use GCD Chisel, connect Tilelink
   new testchipip.soc.WithMbusScratchpad(base = 0x91000000L, size = 64 * 1024) ++                  // Create internal scratchpad bank for testing
-
-  new testchipip.serdes.WithSerialTLPHYParams(testchipip.serdes.InternalSyncSerialPhyParams(phitWidth=8, freqMHz=50)) ++
-
-  new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
-
+  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x90000000L) ++          // Use GCD Chisel, connect Tilelink
   new GeorgeBringupHostConfig)
 
 
@@ -96,15 +88,15 @@ class GeorgeBringupHostConfig extends Config(
   //=============================
   // Setup the SerialTL side on the bringup device
   //=============================
-  new testchipip.serdes.WithSerialTL(Seq(testchipip.serdes.SerialTLParams(
-    manager = Some(testchipip.serdes.SerialTLManagerParams(
-      memParams = Seq(testchipip.serdes.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+  new testchipip.serdes.old.WithSerialTL(Seq(testchipip.serdes.old.SerialTLParams(
+    manager = Some(testchipip.serdes.old.SerialTLManagerParams(
+      memParams = Seq(testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
         address = BigInt("00000000", 16),
         size    = BigInt("80000000", 16)
       ))
     )),
-    client = Some(testchipip.serdes.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-    phyParams = testchipip.serdes.InternalSyncSerialPhyParams(phitWidth=8, flitWidth=16, freqMHz = 50) // bringup platform provides the clock
+    client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+    phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50) // bringup platform provides the clock
   ))) ++
 
   //============================

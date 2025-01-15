@@ -56,7 +56,6 @@ class RocketGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGATweaks ++
 
   new testchipip.soc.WithMbusScratchpad(base = 0x91000000L, size = 64 * 1024) ++                  // Create internal scratchpad bank for testing
-  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x90000000L) ++          // Use GCD Chisel, connect Tilelink
 
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
@@ -69,7 +68,6 @@ class BringupGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGATweaks() ++
 
   new testchipip.soc.WithMbusScratchpad(base = 0x91000000L, size = 64 * 1024) ++                  // Create internal scratchpad bank for testing
-  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x90000000L) ++          // Use GCD Chisel, connect Tilelink
   new GeorgeBringupHostConfig)
 
 
@@ -83,7 +81,7 @@ class GeorgeBringupHostConfig extends Config(
   new chipyard.harness.WithAbsoluteFreqHarnessClockInstantiator ++  // Generate absolute frequencies
   new chipyard.harness.WithSerialTLTiedOff ++                       // when doing standalone sim, tie off the serial-tl port
   new chipyard.harness.WithSimTSIToUARTTSI ++                       // Attach SimTSI-over-UART to the UART-TSI port
-  new chipyard.iobinders.WithSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
+  new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
 
   //=============================
   // Setup the SerialTL side on the bringup device

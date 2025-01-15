@@ -453,7 +453,7 @@ class WithOldSerialTLIOCells extends OverrideIOBinder({
   (system: testchipip.serdes.old.CanHavePeripheryTLSerial) => {
     val (ports, cells) = system.old_serial_tls.zipWithIndex.map({ case (s, id) =>
       val sys = system.asInstanceOf[BaseSubsystem]
-      val (port, cells) = IOCell.generateIOFromSignal(s.getWrappedValue, s"serial_tl_$id", sys.p(IOCellKey), abstractResetAsAsync = true)
+      val (port, cells) = IOCell.generateIOFromSignal(s.getWrappedValue, s"serial_tl_old_$id", sys.p(IOCellKey), abstractResetAsAsync = true)
       (OldSerialTLPort(() => port, sys.p(testchipip.serdes.old.SerialTLKey)(id), system.old_serdessers(id), id), cells)
     }).unzip
     (ports.toSeq, cells.flatten.toSeq)
@@ -593,7 +593,7 @@ class WithTraceIOPunchthrough extends OverrideLazyIOBinder({
         nharts = tiles.size,
         bootrom = chipyardSystem.bootROM.map(_.module.contents.toArray.mkString(" ")).getOrElse(""),
         has_dtm = useSimDTM,
-        mem0_size = mems,
+        mems = mems,
         // Connect using the legacy API for firesim only
         mem0_base = p(ExtMem).map(_.master.base).getOrElse(BigInt(0)),
         mem0_size = p(ExtMem).map(_.master.size).getOrElse(BigInt(0)),

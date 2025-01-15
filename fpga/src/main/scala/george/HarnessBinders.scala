@@ -48,7 +48,7 @@ class WithGeorgeFPGATDDRTL extends HarnessBinder({
 })
 
 class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: SerialTLPort, chipId: Int) => {
+  case (th: HasHarnessInstantiators, port: OldSerialTLPort, chipId: Int) => {
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
     val harnessIO = IO(chiselTypeOf(port.io)).suggestName("serial_tl")
     harnessIO <> port.io

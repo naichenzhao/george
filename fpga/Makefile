@@ -100,6 +100,7 @@ ifeq ($(SUB_PROJECT),datastorm)
 	TOP               ?= ChipTop
 	BOARD			  ?= trenz_datastorm
 	FPGA_BRAND        ?= altera
+endif
 
 ifeq ($(SUB_PROJECT),bringup)
 	# TODO: Fix with Arty

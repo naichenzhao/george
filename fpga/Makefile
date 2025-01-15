@@ -173,6 +173,77 @@ ifeq ($(SUB_PROJECT),georgeRocket)
 	FPGA_BRAND        ?= xilinx
 endif
 
+ifeq ($(SUB_PROJECT),bringup)
+	# TODO: Fix with Arty
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= Arty100THarness
+	VLOG_MODEL        ?= Arty100THarness
+	MODEL_PACKAGE     ?= chipyard.fpga.arty100t
+	CONFIG            ?= BringupArty100TConfig
+	CONFIG_PACKAGE    ?= chipyard.fpga.arty100t
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= arty_a7_100
+	FPGA_BRAND        ?= xilinx
+endif
+
+ifeq ($(SUB_PROJECT),cmoda7)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= CmodA7Harness
+	VLOG_MODEL        ?= CmodA7Harness
+	MODEL_PACKAGE     ?= chipyard.fpga.cmoda7
+	CONFIG            ?= TinyRocketCmodConfig
+	CONFIG_PACKAGE    ?= chipyard.fpga.cmoda7
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= cmod_a7
+	FPGA_BRAND        ?= xilinx
+endif
+
+ifeq ($(SUB_PROJECT),cmoda7NC)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= CmodA7Harness
+	VLOG_MODEL        ?= CmodA7Harness
+	MODEL_PACKAGE     ?= chipyard.fpga.cmoda7
+	CONFIG            ?= NoCoresCmodA7Config
+	CONFIG_PACKAGE    ?= chipyard.fpga.cmoda7
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= cmod_a7
+	FPGA_BRAND        ?= xilinx
+endif
+
+ifeq ($(SUB_PROJECT),george)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= GeorgeFPGAHarness
+	VLOG_MODEL        ?= GeorgeFPGAHarness
+	MODEL_PACKAGE     ?= chipyard.fpga.george
+	CONFIG            ?= BringupGeorgeFPGAConfig
+	CONFIG_PACKAGE    ?= chipyard.fpga.george
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= george
+	FPGA_BRAND        ?= xilinx
+endif
+
+ifeq ($(SUB_PROJECT),georgeRocket)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= GeorgeFPGAHarness
+	VLOG_MODEL        ?= GeorgeFPGAHarness
+	MODEL_PACKAGE     ?= chipyard.fpga.george
+	CONFIG            ?= RocketGeorgeFPGAConfig
+	CONFIG_PACKAGE    ?= chipyard.fpga.george
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= george
+	FPGA_BRAND        ?= xilinx
+endif
+
 export USE_CHISEL6=1
 
 include $(base_dir)/variables.mk

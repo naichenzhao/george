@@ -324,7 +324,7 @@ trait CanHavePeripheryGCD { this: BaseSubsystem =>
 // DOC include end: GCD lazy trait
 
 // DOC include start: GCD config fragment
-class WithGCD(useAXI4: Boolean = false, useBlackBox: Boolean = false, useHLS: Boolean = false) extends Config((site, here, up) => {
+class WithGCD(useAXI4: Boolean = false, useBlackBox: Boolean = false, useHLS: Boolean = false, address: BigInt = 0x4000) extends Config((site, here, up) => {
   case GCDKey => {
     // useHLS cannot be used with useAXI4 and useBlackBox
     assert(!useHLS || (useHLS && !useAXI4 && !useBlackBox)) 

@@ -67,7 +67,7 @@ class BringupGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGATDDRTL ++
   new WithGeorgeFPGATweaks() ++
 
-  new testchipip.soc.WithMbusScratchpad(base = 0x91000000L, size = 64 * 1024) ++                  // Create internal scratchpad bank for testing
+  new testchipip.soc.WithMbusScratchpad(base = 0x90000000L, size = 256 * 1024) ++                  // Create internal scratchpad bank for testing
   new GeorgeBringupHostConfig)
 
 
@@ -118,7 +118,7 @@ class GeorgeBringupHostConfig extends Config(
   // Set up clocks of the bringup system
   //=============================
   new chipyard.clocking.WithPassthroughClockGenerator ++ // pass all the clocks through, since this isn't a chip
-  new chipyard.config.WithUniformBusFrequencies(75.0) ++   // run all buses of this system at 75 MHz
+  new chipyard.config.WithUniformBusFrequencies(50) ++   // run all buses of this system at 75 MHz
 
   // Base is the no-cores config
   new chipyard.NoCoresConfig)

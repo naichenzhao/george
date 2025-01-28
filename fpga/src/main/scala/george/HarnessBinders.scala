@@ -60,46 +60,46 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
           case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
         }
         val packagePinsWithPackageIOs = Seq(
-          ("J17", clkIO),
+          ("J18", clkIO),
 
-          ("G18", IOPin(io.in.valid)),
-          ("H17", IOPin(io.in.ready)),
+          ("D18", IOPin(io.in.valid)),
+          ("E18", IOPin(io.in.ready)),
 
-          ("E18", IOPin(io.in.bits, 0)),
-          ("D15", IOPin(io.in.bits, 1)),
-          ("C17", IOPin(io.in.bits, 2)),
-          ("E17", IOPin(io.in.bits, 3)),
-          ("D17", IOPin(io.in.bits, 4)),
-          ("B18", IOPin(io.in.bits, 5)),
-          ("B16", IOPin(io.in.bits, 6)),
-          ("C15", IOPin(io.in.bits, 7)),
+          ("C16", IOPin(io.in.bits, 0)),
+          ("A18", IOPin(io.in.bits, 1)),
+          ("D17", IOPin(io.in.bits, 2)),
+          ("H17", IOPin(io.in.bits, 3)),
+          ("B18", IOPin(io.in.bits, 4)),
+          ("E17", IOPin(io.in.bits, 5)),
+          ("A15", IOPin(io.in.bits, 6)),
+          ("A16", IOPin(io.in.bits, 7)),
 
-          ("J18", IOPin(io.out.valid)),
-          ("E16", IOPin(io.out.ready)),
+          ("J17", IOPin(io.out.valid)),
+          ("G17", IOPin(io.out.ready)),
 
-          ("G17", IOPin(io.out.bits, 0)),
-          ("A18", IOPin(io.out.bits, 1)),
-          ("C16", IOPin(io.out.bits, 2)),
-          ("D18", IOPin(io.out.bits, 3)),
-          ("F18", IOPin(io.out.bits, 4)),
-          ("B17", IOPin(io.out.bits, 5)),
-          ("A15", IOPin(io.out.bits, 6)),
-          ("A16", IOPin(io.out.bits, 7)),
+          ("E16", IOPin(io.out.bits, 0)),
+          ("C15", IOPin(io.out.bits, 1)),
+          ("D15", IOPin(io.out.bits, 2)),
+          ("G18", IOPin(io.out.bits, 3)),
+          ("C17", IOPin(io.out.bits, 4)),
+          ("F18", IOPin(io.out.bits, 5)),
+          ("C14", IOPin(io.out.bits, 6)),
+          ("B17", IOPin(io.out.bits, 7)),
         )
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)
           ath.xdc.addIOStandard(io, "LVCMOS12")
         }}
 
-        // Don't add IOB to the clock, if its an input
-        io match {
-          case io: testchipip.serdes.old.InternalSyncSerialIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
-            ath.xdc.addIOB(io)
-          }}
-          case io: testchipip.serdes.old.ExternalSyncSerialIO => packagePinsWithPackageIOs.drop(1).foreach { case (pin, io) => {
-            ath.xdc.addIOB(io)
-          }}
-        }
+        // // Don't add IOB to the clock, if its an input
+        // io match {
+        //   case io: testchipip.serdes.old.InternalSyncSerialIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
+        //     ath.xdc.addIOB(io)
+        //   }}
+        //   case io: testchipip.serdes.old.ExternalSyncSerialIO => packagePinsWithPackageIOs.drop(1).foreach { case (pin, io) => {
+        //     ath.xdc.addIOB(io)
+        //   }}
+        // }
 
         ath.sdc.addClock("ser_tl_clock", clkIO, 100)
         ath.sdc.addGroup(pins = Seq(clkIO))

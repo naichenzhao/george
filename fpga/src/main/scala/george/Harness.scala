@@ -65,10 +65,10 @@ class GeorgeFPGAHarness(override implicit val p: Parameters) extends GeorgeFPGAS
         pulse := ~pulse
       }
 
-      status_leds(1) := pulse
+      status_leds(0) := pulse
     }
 
-    status_leds(0) := resetPin
+    status_leds(1) := resetPin
 
     harnessSysPLL.plls.foreach(_._1.getReset.get := pllReset)
 

@@ -60,31 +60,58 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
           case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
         }
         val packagePinsWithPackageIOs = Seq(
-          ("J18", clkIO),
+          // ("J18", clkIO),
 
-          ("D18", IOPin(io.in.valid)),
-          ("E18", IOPin(io.in.ready)),
+          // ("D18", IOPin(io.in.valid)),
+          // ("E18", IOPin(io.in.ready)),
+
+          // ("C16", IOPin(io.in.bits, 0)),
+          // ("A18", IOPin(io.in.bits, 1)),
+          // ("D17", IOPin(io.in.bits, 2)),
+          // ("H17", IOPin(io.in.bits, 3)),
+          // ("B18", IOPin(io.in.bits, 4)),
+          // ("E17", IOPin(io.in.bits, 5)),
+          // ("A15", IOPin(io.in.bits, 6)),
+          // ("A16", IOPin(io.in.bits, 7)),
+
+          // ("J17", IOPin(io.out.valid)),
+          // ("G17", IOPin(io.out.ready)),
+
+          // ("E16", IOPin(io.out.bits, 0)),
+          // ("C15", IOPin(io.out.bits, 1)),
+          // ("D15", IOPin(io.out.bits, 2)),
+          // ("G18", IOPin(io.out.bits, 3)),
+          // ("C17", IOPin(io.out.bits, 4)),
+          // ("F18", IOPin(io.out.bits, 5)),
+          // ("C14", IOPin(io.out.bits, 6)),
+          // ("B17", IOPin(io.out.bits, 7)),
+
+          ("J17", clkIO),
+
+          ("D15", IOPin(io.in.valid)),
+          ("E16", IOPin(io.in.ready)),
 
           ("C16", IOPin(io.in.bits, 0)),
           ("A18", IOPin(io.in.bits, 1)),
-          ("D17", IOPin(io.in.bits, 2)),
+          ("F18", IOPin(io.in.bits, 2)),
           ("H17", IOPin(io.in.bits, 3)),
           ("B18", IOPin(io.in.bits, 4)),
           ("E17", IOPin(io.in.bits, 5)),
           ("A15", IOPin(io.in.bits, 6)),
-          ("A16", IOPin(io.in.bits, 7)),
+          ("B16", IOPin(io.in.bits, 7)),
 
-          ("J17", IOPin(io.out.valid)),
+          ("J18", IOPin(io.out.valid)),
           ("G17", IOPin(io.out.ready)),
 
-          ("E16", IOPin(io.out.bits, 0)),
+          ("E18", IOPin(io.out.bits, 0)),
           ("C15", IOPin(io.out.bits, 1)),
-          ("D15", IOPin(io.out.bits, 2)),
+          ("D18", IOPin(io.out.bits, 2)),
           ("G18", IOPin(io.out.bits, 3)),
           ("C17", IOPin(io.out.bits, 4)),
-          ("F18", IOPin(io.out.bits, 5)),
+          ("D17", IOPin(io.out.bits, 5)),
           ("C14", IOPin(io.out.bits, 6)),
           ("B17", IOPin(io.out.bits, 7)),
+
         )
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)

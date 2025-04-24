@@ -17,7 +17,6 @@ class DualRocketConfig extends Config(
   new chipyard.config.AbstractConfig)
 
 class TinyRocketConfig extends Config(
-  new chipyard.harness.WithDontTouchChipTopPorts(false) ++        // TODO FIX: Don't dontTouch the ports
   new testchipip.soc.WithNoScratchpads ++                         // All memory is the Rocket TCMs
   new freechips.rocketchip.subsystem.WithIncoherentBusTopology ++ // use incoherent bus topology
   new freechips.rocketchip.subsystem.WithNBanks(0) ++             // remove L2$
@@ -113,5 +112,16 @@ class FastRTLSimRocketConfig extends Config(
 
 class SV48RocketConfig extends Config(
   new freechips.rocketchip.rocket.WithSV48 ++
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig)
+
+// Rocket with Tacit encoder and trace sinks
+class TacitRocketConfig extends Config(
+  new tacit.WithTraceSinkDMA(1) ++
+  new tacit.WithTraceSinkAlways(0) ++
+  new chipyard.config.WithTraceArbiterMonitor ++
+  new chipyard.config.WithTacitEncoder ++
+  new chipyard.config.WithNPerfCounters(29) ++
+  new freechips.rocketchip.subsystem.WithoutTLMonitors ++
   new freechips.rocketchip.rocket.WithNHugeCores(1) ++
   new chipyard.config.AbstractConfig)

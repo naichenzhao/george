@@ -46,7 +46,7 @@ search () {
 }
 
 
-submodules=("cva6" "boom" "ibex" "gemmini" "icenet" "nvdla" "rocket-chip" "rocket-chip-blocks" "rocket-chip-inclusive-cache" "testchipip" "riscv-sodor" "mempress" "bar-fetchers" "shuttle" "constellation" "fft-generator" "hardfloat" "caliptra-aes-acc" "rocc-acc-utils" "diplomacy" "rerocc" "compress-acc" "saturn" "ara" "vexiiriscv")
+submodules=("cva6" "boom" "ibex" "gemmini" "icenet" "nvdla" "rocket-chip" "rocket-chip-blocks" "rocket-chip-inclusive-cache" "testchipip" "riscv-sodor" "mempress" "bar-fetchers" "shuttle" "constellation" "fft-generator" "hardfloat" "caliptra-aes-acc" "rocc-acc-utils" "diplomacy" "rerocc" "compress-acc" "saturn" "ara" "vexiiriscv" "tacit" "radiance")
 dir="generators"
 branches=("master" "main" "dev")
 search
@@ -78,7 +78,7 @@ branches=("main")
 search
 
 
-submodules=("coremark" "firemarshal" "nvdla-workload" "spec2017")
+submodules=("coremark" "firemarshal" "nvdla-workload" "spec2017" "zephyrproject/zephyr")
 dir="software"
 branches=("master" "dev")
 search

@@ -38,8 +38,8 @@ class WithDatastormSerialTLToFMC extends HarnessBinder({
     harnessIO match {
       case io: testchipip.serdes.old.DecoupledSerialIO => {
         val clkIO = io match {
-          case io: testchipip.serdes.old.InternalSyncSerialIO => IOPin(io.clock_out)
-          case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
+          case io: HasClockOut => IOPin(io.clock_out)
+          case io: HasClockIn => IOPin(io.clock_in)
         }
         val packagePinsWithPackageIOs = Seq(
           ("PIN_D11", clkIO), //LA21_P

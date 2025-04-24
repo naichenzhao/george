@@ -56,7 +56,5 @@ class NoCoresArty100TConfig extends Config(
 class BringupArty100TConfig extends Config(
   new WithArty100TSerialTLToGPIO ++
   new WithArty100TTweaks(freqMHz = 50) ++
-  new testchipip.serdes.WithSerialTLPHYParams(testchipip.serdes.InternalSyncSerialPhyParams(freqMHz=50)) ++
-  new chipyard.example.WithGCD(useAXI4=false, useBlackBox=false, address=0x1600000000L) ++          // Use GCD Chisel, connect Tilelink
-
+  new testchipip.serdes.WithSerialTLPHYParams(testchipip.serdes.DecoupledInternalSyncSerialPhyParams(freqMHz=50)) ++
   new chipyard.ChipBringupHostConfig)

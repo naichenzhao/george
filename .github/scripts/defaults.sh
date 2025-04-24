@@ -25,7 +25,7 @@ REMOTE_COURSIER_CACHE=$REMOTE_WORK_DIR/.coursier-cache
 
 # key value store to get the build groups
 declare -A grouping
-grouping["group-cores"]="chipyard-cva6 chipyard-ibex chipyard-rocket chipyard-hetero chipyard-boomv3 chipyard-boomv4 chipyard-sodor chipyard-digitaltop chipyard-multiclock-rocket chipyard-nomem-scratchpad chipyard-spike chipyard-clone chipyard-prefetchers chipyard-shuttle chipyard-vexiiriscv"
+grouping["group-cores"]="chipyard-cva6 chipyard-ibex chipyard-rocket chipyard-hetero chipyard-boomv3 chipyard-boomv4 chipyard-sodor chipyard-digitaltop chipyard-multiclock-rocket chipyard-nomem-scratchpad chipyard-spike chipyard-clone chipyard-prefetchers chipyard-shuttle chipyard-shuttle3 chipyard-vexiiriscv chipyard-tacit-rocket chipyard-radiance"
 grouping["group-peripherals"]="chipyard-dmirocket chipyard-dmiboomv3 chipyard-dmiboomv4 chipyard-spiflashwrite chipyard-mmios chipyard-nocores chipyard-manyperipherals chipyard-chiplike chipyard-tethered chipyard-symmetric chipyard-llcchiplet"
 grouping["group-accels"]="chipyard-compressacc chipyard-mempress chipyard-gemmini chipyard-manymmioaccels chipyard-nvdla chipyard-aes256ecb chipyard-rerocc chipyard-rocketvector chipyard-shuttlevector chipyard-hlsacc" # chipyard-shuttleara - Add when Ara works again
 grouping["group-constellation"]="chipyard-constellation"
@@ -60,7 +60,7 @@ mapping["chipyard-spiflashwrite"]=" CONFIG=SmallSPIFlashRocketConfig EXTRA_SIM_F
 mapping["chipyard-manyperipherals"]=" CONFIG=ManyPeripheralsRocketConfig EXTRA_SIM_FLAGS='+spiflash0=${LOCAL_CHIPYARD_DIR}/tests/spiflash.img'"
 mapping["chipyard-chiplike"]=" CONFIG=ChipLikeRocketConfig MODEL=FlatTestHarness MODEL_PACKAGE=chipyard.example verilog"
 mapping["chipyard-tethered"]=" CONFIG=VerilatorCITetheredChipLikeRocketConfig"
-mapping["chipyard-symmetric"]=" CONFIG=MultiSimSymmetricChipletRocketConfig"
+mapping["chipyard-symmetric"]=" CONFIG=MultiSimMultiLinkSymmetricChipletRocketConfig"
 mapping["chipyard-llcchiplet"]=" CONFIG=MultiSimLLCChipletRocketConfig"
 mapping["chipyard-cloneboom"]=" CONFIG=Cloned64MegaBoomV3Config verilog"
 mapping["chipyard-nocores"]=" CONFIG=NoCoresConfig verilog"
@@ -69,6 +69,8 @@ mapping["tracegen-boomv3"]=" CONFIG=BoomV3TraceGenConfig"
 mapping["tracegen-boomv4"]=" CONFIG=BoomV4TraceGenConfig"
 mapping["chipyard-sodor"]=" CONFIG=Sodor5StageConfig"
 mapping["chipyard-shuttle"]=" CONFIG=ShuttleConfig"
+mapping["chipyard-shuttle3"]=" CONFIG=Shuttle3WideConfig"
+mapping["chipyard-tacit-rocket"]=" CONFIG=TacitRocketConfig"
 mapping["chipyard-multiclock-rocket"]=" CONFIG=MulticlockRocketConfig"
 mapping["chipyard-nomem-scratchpad"]=" CONFIG=MMIOScratchpadOnlyRocketConfig"
 mapping["chipyard-constellation"]=" CONFIG=SharedNoCConfig"
@@ -78,6 +80,7 @@ mapping["chipyard-rerocc"]=" CONFIG=ReRoCCTestConfig"
 mapping["chipyard-rocketvector"]=" CONFIG=MINV128D64RocketConfig"
 mapping["chipyard-shuttlevector"]=" CONFIG=GENV256D128ShuttleConfig"
 mapping["chipyard-shuttleara"]=" CONFIG=V4096Ara2LaneShuttleConfig USE_ARA=1 verilog"
+mapping["chipyard-radiance"]=" CONFIG=RadianceFP16ClusterConfig verilog"
 
 mapping["constellation"]=" SUB_PROJECT=constellation"
 mapping["icenet"]="SUB_PROJECT=icenet"

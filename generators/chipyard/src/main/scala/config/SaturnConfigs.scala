@@ -180,4 +180,3 @@ class GENV256D128ShuttleCosimConfig extends Config(
   new shuttle.common.WithShuttleTileBeatBytes(16) ++
   new shuttle.common.WithNShuttleCores(1) ++
   new chipyard.config.AbstractConfig)
-

@@ -100,7 +100,7 @@ class CMODA7ChipBringupHostConfig extends Config(
       ))
     )),
     client = Some(testchipip.serdes.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-    phyParams = testchipip.serdes.InternalSyncSerialPhyParams(phitWidth=1, flitWidth=16, freqMHz = 75) // bringup platform provides the clock
+    phyParams = testchipip.serdes.DecoupledInternalSyncSerialPhyParams(phitWidth=1, flitWidth=16, freqMHz = 75) // bringup platform provides the clock
   ))) ++
 
   //============================

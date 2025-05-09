@@ -53,9 +53,8 @@ class WithGeorgeFPGATweaks(freqMHz: Double = 50) extends Config(
 
 class RocketGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGASerialTLToGPIO ++
+  new WithGeorgeFPGATDDRTL ++
   new WithGeorgeFPGATweaks ++
-
-  new testchipip.soc.WithMbusScratchpad(base = 0x91000000L, size = 64 * 1024) ++                  // Create internal scratchpad bank for testing
 
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
@@ -66,8 +65,6 @@ class BringupGeorgeFPGAConfig extends Config(
   new WithGeorgeFPGASerialTLToGPIO ++
   new WithGeorgeFPGATDDRTL ++
   new WithGeorgeFPGATweaks() ++
-
-  new testchipip.soc.WithMbusScratchpad(base = 0x90000000L, size = 256 * 1024) ++                  // Create internal scratchpad bank for testing
   new GeorgeBringupHostConfig)
 
 
@@ -100,9 +97,9 @@ class GeorgeBringupHostConfig extends Config(
   //============================
   // Setup bus topology on the bringup system
   //============================
-  new testchipip.soc.WithOffchipBusClient(SBUS,                                // offchip bus hangs off the SBUS
+  new testchipip.soc.WithOffchipBusClient(SBUS,                                 // offchip bus hangs off the SBUS
     blockRange = AddressSet.misaligned(0x100000000L, (BigInt(1) << 30) * 4)) ++ // offchip bus should not see the main memory of the testchip, since that can be accessed directly
-  new testchipip.soc.WithOffchipBus ++                                         // offchip bus
+  new testchipip.soc.WithOffchipBus ++                                          // offchip bus
 
   //=============================
   // Set up memory on the bringup system

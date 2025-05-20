@@ -49,22 +49,9 @@ class WithGeorgeFPGATweaks(freqMHz: Double = 50) extends Config(
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
 
-
-
-class RocketGeorgeFPGAConfig extends Config(
-  new WithGeorgeFPGASerialTLToGPIO ++
-  new WithGeorgeFPGATDDRTL ++
-  new WithGeorgeFPGATweaks ++
-
-  new chipyard.config.WithBroadcastManager ++ // no l2
-  new chipyard.RocketConfig)
-
-
-
-class BringupGeorgeFPGAConfig extends Config(
-  new WithGeorgeFPGASerialTLToGPIO ++
-  new WithGeorgeFPGATDDRTL ++
-  new WithGeorgeFPGATweaks() ++
+class GeorgeRobotConfig extends Config(
+  
+  
   new GeorgeBringupHostConfig)
 
 
@@ -72,27 +59,34 @@ class BringupGeorgeFPGAConfig extends Config(
 
 // A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
 class GeorgeBringupHostConfig extends Config(
-  //=============================
-  // Set up TestHarness for standalone-sim
-  //=============================
-  new chipyard.harness.WithAbsoluteFreqHarnessClockInstantiator ++  // Generate absolute frequencies
-  new chipyard.harness.WithSerialTLTiedOff ++                       // when doing standalone sim, tie off the serial-tl port
-  new chipyard.harness.WithSimTSIToUARTTSI ++                       // Attach SimTSI-over-UART to the UART-TSI port
+  new WithGeorgeFPGASerialTLToGPIO ++
+  new WithGeorgeFPGATweaks(freqMHz = 50) ++
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
 
+  new chipyard.config.WithUART(address=0x10080000) ++
   //=============================
   // Setup the SerialTL side on the bringup device
   //=============================
-  new testchipip.serdes.old.WithSerialTL(Seq(testchipip.serdes.old.SerialTLParams(
-    manager = Some(testchipip.serdes.old.SerialTLManagerParams(
-      memParams = Seq(testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
-        address = BigInt("00000000", 16),
-        size    = BigInt("80000000", 16)
-      ))
-    )),
-    client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-    phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50) // bringup platform provides the clock
-  ))) ++
+  new testchipip.serdes.old.WithSerialTL(Seq(
+    testchipip.serdes.old.SerialTLParams(
+      manager = Some(testchipip.serdes.old.SerialTLManagerParams(
+        memParams = Seq(
+          testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+            address = BigInt("00000000", 16),
+            size    = BigInt("10070000", 16)),
+          testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+            address = BigInt("14000000", 16),
+            size    = BigInt("6C000000", 16)),
+      ))),
+      client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+      phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50)), // bringup platform provides the clock
+    
+    testchipip.serdes.old.SerialTLParams(
+      manager = None,
+      client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+      phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=1, freqMHz = 50)), // bringup platform provides the clock   
+    )) ++
+  new testchipip.serdes.WithNoSerialTL ++
 
   //============================
   // Setup bus topology on the bringup system
@@ -100,22 +94,4 @@ class GeorgeBringupHostConfig extends Config(
   new testchipip.soc.WithOffchipBusClient(SBUS,                                 // offchip bus hangs off the SBUS
     blockRange = AddressSet.misaligned(0x100000000L, (BigInt(1) << 30) * 4)) ++ // offchip bus should not see the main memory of the testchip, since that can be accessed directly
   new testchipip.soc.WithOffchipBus ++                                          // offchip bus
-
-  //=============================
-  // Set up memory on the bringup system
-  //=============================
-  new freechips.rocketchip.subsystem.WithExtMemSize((1 << 30) * 4L) ++         // match what the chip believes the max size should be
-
-  //=============================
-  // Generate the TSI-over-UART side of the bringup system
-  //=============================
-  new testchipip.tsi.WithUARTTSIClient(initBaudRate = BigInt(921600)) ++       // nonstandard baud rate to improve performance
-
-  //=============================
-  // Set up clocks of the bringup system
-  //=============================
-  new chipyard.clocking.WithPassthroughClockGenerator ++ // pass all the clocks through, since this isn't a chip
-  new chipyard.config.WithUniformBusFrequencies(50) ++   // run all buses of this system at 75 MHz
-
-  // Base is the no-cores config
   new chipyard.NoCoresConfig)

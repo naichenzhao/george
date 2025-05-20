@@ -456,7 +456,7 @@ class WithOldSerialTLIOCells extends OverrideIOBinder({
   (system: testchipip.serdes.old.CanHavePeripheryTLSerial) => {
     val (ports, cells) = system.old_serial_tls.zipWithIndex.map({ case (s, id) =>
       val sys = system.asInstanceOf[BaseSubsystem]
-      val (port, cells) = IOCell.generateIOFromSignal(s.getWrappedValue, s"serial_tl_old_$id", sys.p(IOCellKey), abstractResetAsAsync = true)
+      val (port, cells) = IOCell.generateIOFromSignal(s.getWrappedValue, s"serial_tl_$id", sys.p(IOCellKey), abstractResetAsAsync = true)
       (OldSerialTLPort(() => port, sys.p(testchipip.serdes.old.SerialTLKey)(id), system.old_serdessers(id), id), cells)
     }).unzip
     (ports.toSeq, cells.flatten.toSeq)
@@ -467,14 +467,13 @@ class WithOldSerialTLPunchthrough extends OverrideIOBinder({
   (system: testchipip.serdes.old.CanHavePeripheryTLSerial) => {
     val (ports, cells) = system.old_serial_tls.zipWithIndex.map({ case (s, id) =>
       val sys = system.asInstanceOf[BaseSubsystem]
-      val port = IO(chiselTypeOf(s.getWrappedValue))
+      val port = IO(chiselTypeOf(s.getWrappedValue)).suggestName(s"sertl_$id")
       port <> s.getWrappedValue
       (OldSerialTLPort(() => port, sys.p(testchipip.serdes.old.SerialTLKey)(id), system.old_serdessers(id), id), Nil)
     }).unzip
     (ports.toSeq, cells.flatten.toSeq)
   }
 })
-
 
 class WithAXI4MemPunchthrough extends OverrideLazyIOBinder({
   (system: CanHaveMasterAXI4MemPort) => {

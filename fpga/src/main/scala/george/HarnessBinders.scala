@@ -50,7 +50,7 @@ class WithGeorgeFPGATDDRTL extends HarnessBinder({
 class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: OldSerialTLPort, chipId: Int) => {
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
-    val harnessIO = IO(chiselTypeOf(port.io)).suggestName("serial_tl_old")
+    val harnessIO = IO(chiselTypeOf(port.io)).suggestName(s"serial_tl_old_${port.portId}")
     harnessIO <> port.io
 
     harnessIO match {
@@ -59,34 +59,50 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
           case io: testchipip.serdes.old.InternalSyncSerialIO => IOPin(io.clock_out)
           case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
         }
-        val packagePinsWithPackageIOs = Seq(
-          ("J17", clkIO),
 
-          ("D15", IOPin(io.in.valid)),
-          ("E16", IOPin(io.in.ready)),
+        val packagePinsWithPackageIOs = if (port.portId == 0) {
+          Seq(
+            ("J17", clkIO),
 
-          ("C16", IOPin(io.in.bits, 0)),
-          ("A18", IOPin(io.in.bits, 1)),
-          ("F18", IOPin(io.in.bits, 2)),
-          ("H17", IOPin(io.in.bits, 3)),
-          ("B18", IOPin(io.in.bits, 4)),
-          ("E17", IOPin(io.in.bits, 5)),
-          ("A15", IOPin(io.in.bits, 6)),
-          ("B16", IOPin(io.in.bits, 7)),
+            ("D15", IOPin(io.in.valid)),
+            ("E16", IOPin(io.in.ready)),
 
-          ("J18", IOPin(io.out.valid)),
-          ("G17", IOPin(io.out.ready)),
+            ("C16", IOPin(io.in.bits, 0)),
+            ("A18", IOPin(io.in.bits, 1)),
+            ("F18", IOPin(io.in.bits, 2)),
+            ("H17", IOPin(io.in.bits, 3)),
+            ("B18", IOPin(io.in.bits, 4)),
+            ("E17", IOPin(io.in.bits, 5)),
+            ("A15", IOPin(io.in.bits, 6)),
+            ("B16", IOPin(io.in.bits, 7)),
 
-          ("E18", IOPin(io.out.bits, 0)),
-          ("C15", IOPin(io.out.bits, 1)),
-          ("D18", IOPin(io.out.bits, 2)),
-          ("G18", IOPin(io.out.bits, 3)),
-          ("C17", IOPin(io.out.bits, 4)),
-          ("D17", IOPin(io.out.bits, 5)),
-          ("C14", IOPin(io.out.bits, 6)),
-          ("B17", IOPin(io.out.bits, 7)),
+            ("J18", IOPin(io.out.valid)),
+            ("G17", IOPin(io.out.ready)),
 
-        )
+            ("E18", IOPin(io.out.bits, 0)),
+            ("C15", IOPin(io.out.bits, 1)),
+            ("D18", IOPin(io.out.bits, 2)),
+            ("G18", IOPin(io.out.bits, 3)),
+            ("C17", IOPin(io.out.bits, 4)),
+            ("D17", IOPin(io.out.bits, 5)),
+            ("C14", IOPin(io.out.bits, 6)),
+            ("B17", IOPin(io.out.bits, 7)),
+          )
+        } else {
+          Seq(
+            ("D12", clkIO),
+
+            ("B11", IOPin(io.out.valid)),
+            ("A13", IOPin(io.out.ready)),
+
+            ("B12", IOPin(io.out.bits, 0)),
+
+            ("A14", IOPin(io.in.valid)),
+            ("A11", IOPin(io.in.ready)),
+
+            ("C12", IOPin(io.in.bits, 0)),
+          )
+        }
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)
           ath.xdc.addIOStandard(io, "LVCMOS12")
@@ -128,7 +144,7 @@ class WithGeorgeFPGAUART(rxdPin: String = "C10", txdPin: String = "A10") extends
 })
 
 // Maps the UART device to PMOD JD pins 3/7
-class WithGeorgeFPGAPMODUART extends WithGeorgeFPGAUART("D9", "C9")
+class WithGeorgeFPGAPMODUART extends WithGeorgeFPGAUART("E3", "C2")
 
 class WithGeorgeFPGAJTAG extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: JTAGPort, chipId: Int) => {

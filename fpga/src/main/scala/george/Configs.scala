@@ -50,7 +50,10 @@ class WithGeorgeFPGATweaks(freqMHz: Double = 50) extends Config(
 
 
 class GeorgeRobotConfig extends Config(
+  new riskybear.WithRobotJoint(address=0x10080000L) ++
+  // new testchipip.soc.WithMbusScratchpad(base = 0x10090000L, size = 256 * 1024) ++                  // Create internal scratchpad bank for testing
   
+  new WithGeorgeJoints ++
   
   new GeorgeBringupHostConfig)
 
@@ -62,8 +65,6 @@ class GeorgeBringupHostConfig extends Config(
   new WithGeorgeFPGASerialTLToGPIO ++
   new WithGeorgeFPGATweaks(freqMHz = 50) ++
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
-
-  new chipyard.config.WithUART(address=0x10080000) ++
   //=============================
   // Setup the SerialTL side on the bringup device
   //=============================

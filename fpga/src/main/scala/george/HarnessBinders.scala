@@ -169,4 +169,30 @@ class WithGeorgeFPGAJTAG extends HarnessBinder({
   }
 })
 
+class WithGeorgeJoints() extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: RobotJointPort, chipId: Int) => {
+
+    // Imma just hard-code the pins here cause im cringe
+    val motor_a = Seq("E3", "D2", "F3", "G2", "B4", "C5", "B7", "D7")
+    val motor_b = Seq("C2", "B1", "G3", "E1", "A5", "C4", "C7", "E7")
+    val qdec_a =  Seq("A4", "D3", "C1", "E2", "A6", "G6", "E5", "E6")
+    val qdec_b =  Seq("A3", "D4", "A1", "F1", "F4", "G4", "F5", "D5")
+
+    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
+    val harnessIO = IO(chiselTypeOf(port.io)).suggestName(s"robot_joints_${port.pinId}")
+    harnessIO <> port.io
+    val packagePinsWithPackageIOs = Seq(
+      (motor_a(port.pinId), IOPin(harnessIO.motor_out_a)),
+      (motor_b(port.pinId), IOPin(harnessIO.motor_out_b)), 
+      (qdec_a(port.pinId), IOPin(harnessIO.qdec_a)),
+      (qdec_b(port.pinId), IOPin(harnessIO.qdec_b)))
+      
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      ath.xdc.addPackagePin(io, pin)
+      ath.xdc.addIOStandard(io, "LVCMOS33")
+      ath.xdc.addIOB(io)
+    } }
+  }
+})
+
 

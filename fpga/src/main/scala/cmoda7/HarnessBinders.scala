@@ -124,6 +124,7 @@ class WithCmodA7Joints() extends HarnessBinder({
       
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       ath.xdc.addPackagePin(io, pin)
+      ath.xdc.addPulldown(io)
       ath.xdc.addIOStandard(io, "LVCMOS33")
       ath.xdc.addIOB(io)
     } }

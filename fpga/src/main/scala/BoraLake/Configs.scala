@@ -31,7 +31,7 @@ class WithBoraLakeTweaks(freqMHz: Double = 50) extends Config(
   new WithBoraLakePMODUART ++
   new WithBoraLakeUARTTSI ++
   new WithBoraLakeJTAG ++
-  // new WithBoraLakeTDDRTL ++
+  new WithBoraLakeTDDRTL ++
 
   new WithNoDesignKey ++
   new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
@@ -41,10 +41,10 @@ class WithBoraLakeTweaks(freqMHz: Double = 50) extends Config(
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
 
-  // new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  // new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
+  new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
 
-  new freechips.rocketchip.subsystem.WithNoMemPort ++ 
+  // new freechips.rocketchip.subsystem.WithNoMemPort ++ 
   new testchipip.serdes.WithNoSerialTL ++
   
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
@@ -53,7 +53,7 @@ class WithBoraLakeTweaks(freqMHz: Double = 50) extends Config(
 class BoraLakeRocketConfig extends Config(
   new WithBoraLakeTweaks(freqMHz = 50) ++
   new chipyard.config.WithBroadcastManager ++ // no l2
-  new chipyard.SmallBoomV4Config)
+  new chipyard.RocketConfig)
 
 
 

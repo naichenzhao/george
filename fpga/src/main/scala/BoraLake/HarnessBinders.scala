@@ -37,15 +37,15 @@ class WithBoraLakeUARTTSI extends HarnessBinder({
   }
 })
 
-// class WithBoraLakeTDDRTL extends HarnessBinder({
-//   case (th: HasHarnessInstantiators, port: TLMemPort, chipId: Int) => {
-//     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[BoraLakeHarness]
-//     val bundles = ath.ddrClient.out.map(_._1)
-//     val ddrClientBundle = Wire(new HeterogeneousBag(bundles.map(_.cloneType)))
-//     bundles.zip(ddrClientBundle).foreach { case (bundle, io) => bundle <> io }
-//     ddrClientBundle <> port.io
-//   }
-// })
+class WithBoraLakeTDDRTL extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: TLMemPort, chipId: Int) => {
+    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[BoraLakeHarness]
+    val bundles = ath.ddrClient.out.map(_._1)
+    val ddrClientBundle = Wire(new HeterogeneousBag(bundles.map(_.cloneType)))
+    bundles.zip(ddrClientBundle).foreach { case (bundle, io) => bundle <> io }
+    ddrClientBundle <> port.io
+  }
+})
 
 class WithBoraLakeSerialTLToGPIO extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: OldSerialTLPort, chipId: Int) => {

@@ -53,7 +53,7 @@ class WithBoraLakeTweaks(freqMHz: Double = 50) extends Config(
 class BoraLakeRocketConfig extends Config(
   new WithBoraLakeTweaks(freqMHz = 50) ++
   new chipyard.config.WithBroadcastManager ++ // no l2
-  new chipyard.MediumBoomV4Config)
+  new chipyard.SmallBoomV4Config)
 
 
 

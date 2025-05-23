@@ -159,6 +159,20 @@ ifeq ($(SUB_PROJECT),george)
 	FPGA_BRAND        ?= xilinx
 endif
 
+ifeq ($(SUB_PROJECT),boralake)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= BoraLakeHarness
+	VLOG_MODEL        ?= BoraLakeHarness
+	MODEL_PACKAGE     ?= chipyard.fpga.boralake
+	CONFIG            ?= BoraLakeRocketConfig
+	CONFIG_PACKAGE    ?= chipyard.fpga.boralake
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= boralake
+	FPGA_BRAND        ?= xilinx
+endif
+
 
 export USE_CHISEL6=1
 

@@ -42,11 +42,9 @@ class WithBoraLakeTweaks(freqMHz: Double = 50) extends Config(
   new chipyard.clocking.WithPassthroughClockGenerator ++
 
   new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(0x100000000L)) ++ // 4GB
 
-  // new freechips.rocketchip.subsystem.WithNoMemPort ++ 
   new testchipip.serdes.WithNoSerialTL ++
-  
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
 
@@ -59,9 +57,10 @@ class BoraLakeRocketConfig extends Config(
 
 
 // A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
-class BoraLakeBringupHostConfig extends Config(
-  new WithBoraLakeSerialTLToGPIO ++
+class BoraLakeDSP24Config extends Config(
   new WithBoraLakeTweaks(freqMHz = 50) ++
+  new WithBoraLakeSerialTLToGPIO ++
+  
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
   //=============================
   // Setup the SerialTL side on the bringup device
@@ -85,7 +84,6 @@ class BoraLakeBringupHostConfig extends Config(
       client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
       phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=1, freqMHz = 50)), // bringup platform provides the clock   
     )) ++
-  new testchipip.serdes.WithNoSerialTL ++
 
   //============================
   // Setup bus topology on the bringup system

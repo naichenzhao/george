@@ -52,7 +52,6 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
     val harnessIO = IO(chiselTypeOf(port.io)).suggestName(s"serial_tl_old_${port.portId}")
     harnessIO <> port.io
-
     harnessIO match {
       case io: testchipip.serdes.old.DecoupledSerialIO => {
         val clkIO = io match {
@@ -66,7 +65,6 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
 
             ("D15", IOPin(io.in.valid)),
             ("E16", IOPin(io.in.ready)),
-
             ("C16", IOPin(io.in.bits, 0)),
             ("A18", IOPin(io.in.bits, 1)),
             ("F18", IOPin(io.in.bits, 2)),
@@ -78,7 +76,6 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
 
             ("J18", IOPin(io.out.valid)),
             ("G17", IOPin(io.out.ready)),
-
             ("E18", IOPin(io.out.bits, 0)),
             ("C15", IOPin(io.out.bits, 1)),
             ("D18", IOPin(io.out.bits, 2)),
@@ -91,15 +88,11 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
         } else {
           Seq(
             ("D12", clkIO),
-
             ("B11", IOPin(io.out.valid)),
             ("A13", IOPin(io.out.ready)),
-
             ("B12", IOPin(io.out.bits, 0)),
-
             ("A14", IOPin(io.in.valid)),
             ("A11", IOPin(io.in.ready)),
-
             ("C12", IOPin(io.in.bits, 0)),
           )
         }
@@ -123,49 +116,6 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
         ath.xdc.clockDedicatedRouteFalse(clkIO)
       }
     }
-  }
-})
-
-// Maps the UART device to the on-board USB-UART
-class WithGeorgeFPGAUART(rxdPin: String = "C10", txdPin: String = "A10") extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: UARTPort, chipId: Int) => {
-    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
-    val harnessIO = IO(chiselTypeOf(port.io)).suggestName("uart")
-    harnessIO <> port.io
-    val packagePinsWithPackageIOs = Seq(
-      (rxdPin, IOPin(harnessIO.rxd)),
-      (txdPin, IOPin(harnessIO.txd)))
-    packagePinsWithPackageIOs foreach { case (pin, io) => {
-      ath.xdc.addPackagePin(io, pin)
-      ath.xdc.addIOStandard(io, "LVCMOS33")
-      ath.xdc.addIOB(io)
-    } }
-  }
-})
-
-// Maps the UART device to PMOD JD pins 3/7
-class WithGeorgeFPGAPMODUART extends WithGeorgeFPGAUART("E3", "C2")
-
-class WithGeorgeFPGAJTAG extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: JTAGPort, chipId: Int) => {
-    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[GeorgeFPGAHarness]
-    val harnessIO = IO(chiselTypeOf(port.io)).suggestName("jtag")
-    harnessIO <> port.io
-
-    ath.sdc.addClock("JTCK", IOPin(harnessIO.TCK), 10)
-    ath.sdc.addGroup(clocks = Seq("JTCK"))
-    ath.xdc.clockDedicatedRouteFalse(IOPin(harnessIO.TCK))
-    val packagePinsWithPackageIOs = Seq(
-      ("F4", IOPin(harnessIO.TCK)),
-      ("D2", IOPin(harnessIO.TMS)),
-      ("E2", IOPin(harnessIO.TDI)),
-      ("D4", IOPin(harnessIO.TDO))
-    )
-    packagePinsWithPackageIOs foreach { case (pin, io) => {
-      ath.xdc.addPackagePin(io, pin)
-      ath.xdc.addIOStandard(io, "LVCMOS33")
-      ath.xdc.addPullup(io)
-    } }
   }
 })
 

@@ -37,6 +37,8 @@ class WithBoraLakeUARTTSI extends HarnessBinder({
   }
 })
 
+
+
 class WithBoraLakeTDDRTL extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: TLMemPort, chipId: Int) => {
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[BoraLakeHarness]
@@ -47,12 +49,13 @@ class WithBoraLakeTDDRTL extends HarnessBinder({
   }
 })
 
+
+
 class WithBoraLakeSerialTLToGPIO extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: OldSerialTLPort, chipId: Int) => {
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[BoraLakeHarness]
     val harnessIO = IO(chiselTypeOf(port.io)).suggestName(s"serial_tl_old_${port.portId}")
     harnessIO <> port.io
-
     harnessIO match {
       case io: testchipip.serdes.old.DecoupledSerialIO => {
         val clkIO = io match {
@@ -62,45 +65,38 @@ class WithBoraLakeSerialTLToGPIO extends HarnessBinder({
 
         val packagePinsWithPackageIOs = if (port.portId == 0) {
           Seq(
-            ("J17", clkIO),
+            ("H9", clkIO),
+            ("H8", IOPin(io.in.valid)),
+            ("G10", IOPin(io.in.ready)),
+            ("G9", IOPin(io.in.bits, 0)),
+            ("J13", IOPin(io.in.bits, 1)),
+            ("H13", IOPin(io.in.bits, 2)),
+            ("J11", IOPin(io.in.bits, 3)),
+            ("J10", IOPin(io.in.bits, 4)),
+            ("H14", IOPin(io.in.bits, 5)),
+            ("G14", IOPin(io.in.bits, 6)),
+            ("H12", IOPin(io.in.bits, 7)),
 
-            ("D15", IOPin(io.in.valid)),
-            ("E16", IOPin(io.in.ready)),
-
-            ("C16", IOPin(io.in.bits, 0)),
-            ("A18", IOPin(io.in.bits, 1)),
-            ("F18", IOPin(io.in.bits, 2)),
-            ("H17", IOPin(io.in.bits, 3)),
-            ("B18", IOPin(io.in.bits, 4)),
-            ("E17", IOPin(io.in.bits, 5)),
-            ("A15", IOPin(io.in.bits, 6)),
-            ("B16", IOPin(io.in.bits, 7)),
-
-            ("J18", IOPin(io.out.valid)),
-            ("G17", IOPin(io.out.ready)),
-
-            ("E18", IOPin(io.out.bits, 0)),
-            ("C15", IOPin(io.out.bits, 1)),
-            ("D18", IOPin(io.out.bits, 2)),
-            ("G18", IOPin(io.out.bits, 3)),
-            ("C17", IOPin(io.out.bits, 4)),
-            ("D17", IOPin(io.out.bits, 5)),
-            ("C14", IOPin(io.out.bits, 6)),
-            ("B17", IOPin(io.out.bits, 7)),
+            ("F9", IOPin(io.out.valid)),
+            ("F8", IOPin(io.out.ready)),
+            ("D9", IOPin(io.out.bits, 0)),
+            ("D8", IOPin(io.out.bits, 1)),
+            ("A9", IOPin(io.out.bits, 2)),
+            ("A8", IOPin(io.out.bits, 3)),
+            ("C9", IOPin(io.out.bits, 4)),
+            ("B9", IOPin(io.out.bits, 5)),
+            ("G11", IOPin(io.out.bits, 6)),
+            ("F10", IOPin(io.out.bits, 7)),
           )
         } else {
           Seq(
-            ("D12", clkIO),
-
-            ("B11", IOPin(io.out.valid)),
-            ("A13", IOPin(io.out.ready)),
-
-            ("B12", IOPin(io.out.bits, 0)),
-
-            ("A14", IOPin(io.in.valid)),
-            ("A11", IOPin(io.in.ready)),
-
-            ("C12", IOPin(io.in.bits, 0)),
+            ("E10", clkIO),
+            ("D10", IOPin(io.out.valid)),
+            ("C12", IOPin(io.out.ready)),
+            ("C11", IOPin(io.out.bits, 0)),
+            ("E11", IOPin(io.in.valid)),
+            ("D11", IOPin(io.in.ready)),
+            ("F14", IOPin(io.in.bits, 0)),
           )
         }
         packagePinsWithPackageIOs foreach { case (pin, io) => {
@@ -125,52 +121,4 @@ class WithBoraLakeSerialTLToGPIO extends HarnessBinder({
     }
   }
 })
-
-// Maps the UART device to the on-board USB-UART
-class WithBoraLakeUART(rxdPin: String = "N26", txdPin: String = "M26") extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: UARTPort, chipId: Int) => {
-    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[BoraLakeHarness]
-    val harnessIO = IO(chiselTypeOf(port.io)).suggestName("uart")
-    harnessIO <> port.io
-    val packagePinsWithPackageIOs = Seq(
-      (rxdPin, IOPin(harnessIO.rxd)),
-      (txdPin, IOPin(harnessIO.txd)))
-    packagePinsWithPackageIOs foreach { case (pin, io) => {
-      ath.xdc.addPackagePin(io, pin)
-      ath.xdc.addIOStandard(io, "LVCMOS33")
-      ath.xdc.addIOB(io)
-    } }
-  }
-})
-
-// Maps the UART device to PMOD JD pins 3/7
-class WithBoraLakePMODUART extends WithBoraLakeUART("R25", "P25")
-
-class WithBoraLakeJTAG extends HarnessBinder({
-  case (th: HasHarnessInstantiators, port: JTAGPort, chipId: Int) => {
-    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[BoraLakeHarness]
-    val harnessIO = IO(new JTAGChipIO(false)).suggestName("jtag")
-    harnessIO.TDO := port.io.TDO
-    port.io.TCK := harnessIO.TCK
-    port.io.TDI := harnessIO.TDI
-    port.io.TMS := harnessIO.TMS
-    port.io.reset.foreach(_ := th.referenceReset)
-
-    ath.sdc.addClock("JTCK", IOPin(harnessIO.TCK), 10)
-    ath.sdc.addGroup(clocks = Seq("JTCK"))
-    ath.xdc.clockDedicatedRouteFalse(IOPin(harnessIO.TCK))
-    val packagePinsWithPackageIOs = Seq(
-      ("K25", IOPin(harnessIO.TCK)),
-      ("K26", IOPin(harnessIO.TMS)),
-      ("R26", IOPin(harnessIO.TDI)),
-      ("P26", IOPin(harnessIO.TDO)),
-    )
-    packagePinsWithPackageIOs foreach { case (pin, io) => {
-      ath.xdc.addPackagePin(io, pin)
-      ath.xdc.addIOStandard(io, "LVCMOS33")
-      ath.xdc.addPullup(io)
-    } }
-  }
-})
-
 

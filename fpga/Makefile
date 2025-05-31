@@ -164,7 +164,7 @@ ifeq ($(SUB_PROJECT),boralake)
 	MODEL             ?= BoraLakeHarness
 	VLOG_MODEL        ?= BoraLakeHarness
 	MODEL_PACKAGE     ?= chipyard.fpga.boralake
-	CONFIG            ?= BoraLakeRocketConfig
+	CONFIG            ?= BoraLakeDSP24Config
 	CONFIG_PACKAGE    ?= chipyard.fpga.boralake
 	GENERATOR_PACKAGE ?= chipyard
 	TB                ?= none # unused

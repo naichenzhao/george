@@ -27,14 +27,12 @@ class WithNoDesignKey extends Config((site, here, up) => {
 })
 
 // By default, this uses the on-board USB-UART for the TSI-over-UART link
-class WithBoraLakeTweaks(freqMHz: Double = 50) extends Config(
-  new WithBoraLakePMODUART ++
+class WithBoraLakeTweaks(freqMHz: Double = 20) extends Config(
   new WithBoraLakeUARTTSI ++
-  new WithBoraLakeJTAG ++
   new WithBoraLakeTDDRTL ++
 
   new WithNoDesignKey ++
-  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
+  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 115200) ++
   new chipyard.harness.WithSerialTLTiedOff ++
   new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
@@ -42,7 +40,7 @@ class WithBoraLakeTweaks(freqMHz: Double = 50) extends Config(
   new chipyard.clocking.WithPassthroughClockGenerator ++
 
   new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(0x100000000L)) ++ // 4GB
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(0x40000000L)) ++ // 4GB
 
   new testchipip.serdes.WithNoSerialTL ++
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
@@ -58,6 +56,8 @@ class BoraLakeRocketConfig extends Config(
 
 // A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
 class BoraLakeDSP24Config extends Config(
+  new testchipip.soc.WithMbusScratchpad(base = 0x10080000L, size = 256 * 1024) ++
+
   new WithBoraLakeTweaks(freqMHz = 50) ++
   new WithBoraLakeSerialTLToGPIO ++
   

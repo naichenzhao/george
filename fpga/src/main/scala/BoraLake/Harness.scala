@@ -44,8 +44,8 @@ class BoraLakeHarness(override implicit val p: Parameters) extends BoraLakeShell
 
   val ledOverlays = dp(LEDOverlayKey).map(_.place(LEDDesignInput()))
   val all_leds = ledOverlays.map(_.overlayOutput.led)
-  val status_leds = all_leds.take(2)
-  println(s"SJADK: Status leds: ${status_leds}, all leds: ${all_leds}")
+  val status_leds = all_leds.take(7)
+  println(s"Status leds: ${status_leds}, all leds: ${all_leds}")
 
   override lazy val module = new HarnessLikeImpl
 
@@ -56,8 +56,9 @@ class BoraLakeHarness(override implicit val p: Parameters) extends BoraLakeShell
     val clk_100mhz = clockOverlay.overlayOutput.node.out.head._1.clock
 
     // Blink the status LEDs for sanity
+    val blinky_rst = 0.B
     withClockAndReset(clk_100mhz, dutClock.in.head._1.reset) {
-      val period = (BigInt(100) << 20) / status_leds.size
+      val period = (BigInt(100) << 20) / 2
       val counter = RegInit(0.U(log2Ceil(period).W))
       val pulse = RegInit(0.U(1.W))
       counter := Mux(counter === (period-1).U, 0.U, counter + 1.U)
@@ -65,10 +66,16 @@ class BoraLakeHarness(override implicit val p: Parameters) extends BoraLakeShell
         pulse := ~pulse
       }
 
-      status_leds(0) := pulse
+      status_leds(0) := pulse       // Green
+      status_leds(1) := resetPin    // Red
+
     }
 
-    status_leds(1) := resetPin
+    
+    status_leds(2) := 1.U           // Green
+    status_leds(3) := 1.U           // Red
+    status_leds(4) := 1.U           // Green
+    status_leds(5) := 1.U           // Red
 
     harnessSysPLL.plls.foreach(_._1.getReset.get := pllReset)
 

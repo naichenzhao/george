@@ -28,9 +28,7 @@ class WithNoDesignKey extends Config((site, here, up) => {
 
 // By default, this uses the on-board USB-UART for the TSI-over-UART link
 class WithGeorgeFPGATweaks(freqMHz: Double = 50) extends Config(
-  new WithGeorgeFPGAPMODUART ++
   new WithGeorgeFPGAUARTTSI ++
-  new WithGeorgeFPGAJTAG ++
   new WithGeorgeFPGATDDRTL ++
 
   new WithNoDesignKey ++
@@ -50,10 +48,10 @@ class WithGeorgeFPGATweaks(freqMHz: Double = 50) extends Config(
 
 
 class GeorgeRobotConfig extends Config(
-  new riskybear.WithRobotJoint(address=0x10080000L) ++
+  // new riskybear.WithRobotJoint(address=0x10080000L) ++
+  // new WithGeorgeJoints ++
+
   // new testchipip.soc.WithMbusScratchpad(base = 0x10090000L, size = 256 * 1024) ++                  // Create internal scratchpad bank for testing
-  
-  new WithGeorgeJoints ++
   
   new GeorgeBringupHostConfig)
 

@@ -63,42 +63,107 @@ class WithBoraLakeSerialTLToGPIO extends HarnessBinder({
           case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
         }
 
-        val packagePinsWithPackageIOs = if (port.portId == 0) {
-          Seq(
-            ("H9", clkIO),
-            ("H8", IOPin(io.in.valid)),
-            ("G10", IOPin(io.in.ready)),
-            ("G9", IOPin(io.in.bits, 0)),
-            ("J13", IOPin(io.in.bits, 1)),
-            ("H13", IOPin(io.in.bits, 2)),
-            ("J11", IOPin(io.in.bits, 3)),
-            ("J10", IOPin(io.in.bits, 4)),
-            ("H14", IOPin(io.in.bits, 5)),
-            ("G14", IOPin(io.in.bits, 6)),
-            ("H12", IOPin(io.in.bits, 7)),
+        // val packagePinsWithPackageIOs = if (port.portId == 0) {
+        //   Seq(
+        //     // ("H9", clkIO),
+        //     // ("H8", IOPin(io.in.valid)),
+        //     // ("G10", IOPin(io.in.ready)),
+        //     // ("G9", IOPin(io.in.bits, 0)),
+        //     // ("J13", IOPin(io.in.bits, 1)),
+        //     // ("H13", IOPin(io.in.bits, 2)),
+        //     // ("J11", IOPin(io.in.bits, 3)),
+        //     // ("J10", IOPin(io.in.bits, 4)),
+        //     // ("H14", IOPin(io.in.bits, 5)),
+        //     // ("G14", IOPin(io.in.bits, 6)),
+        //     // ("H12", IOPin(io.in.bits, 7)),
 
-            ("F9", IOPin(io.out.valid)),
-            ("F8", IOPin(io.out.ready)),
-            ("D9", IOPin(io.out.bits, 0)),
-            ("D8", IOPin(io.out.bits, 1)),
-            ("A9", IOPin(io.out.bits, 2)),
-            ("A8", IOPin(io.out.bits, 3)),
-            ("C9", IOPin(io.out.bits, 4)),
-            ("B9", IOPin(io.out.bits, 5)),
-            ("G11", IOPin(io.out.bits, 6)),
-            ("F10", IOPin(io.out.bits, 7)),
-          )
-        } else {
-          Seq(
-            ("E10", clkIO),
-            ("D10", IOPin(io.out.valid)),
-            ("C12", IOPin(io.out.ready)),
-            ("C11", IOPin(io.out.bits, 0)),
-            ("E11", IOPin(io.in.valid)),
-            ("D11", IOPin(io.in.ready)),
-            ("F14", IOPin(io.in.bits, 0)),
-          )
-        }
+        //     // ("F9", IOPin(io.out.valid)),
+        //     // ("F8", IOPin(io.out.ready)),
+        //     // ("D9", IOPin(io.out.bits, 0)),
+        //     // ("D8", IOPin(io.out.bits, 1)),
+        //     // ("A9", IOPin(io.out.bits, 2)),
+        //     // ("A8", IOPin(io.out.bits, 3)),
+        //     // ("C9", IOPin(io.out.bits, 4)),
+        //     // ("B9", IOPin(io.out.bits, 5)),
+        //     // ("G11", IOPin(io.out.bits, 6)),
+        //     // ("F10", IOPin(io.out.bits, 7)),
+
+        //     ("J11", clkIO),
+        //     ("F12", IOPin(io.in.valid)),
+        //     ("H12", IOPin(io.in.ready)),
+        //     ("F8", IOPin(io.in.bits, 0)),
+        //     ("F10", IOPin(io.in.bits, 1)),
+        //     ("D9", IOPin(io.in.bits, 2)),
+        //     ("A9", IOPin(io.in.bits, 3)),
+        //     ("E11", IOPin(io.in.bits, 4)),
+        //     ("C9", IOPin(io.in.bits, 5)),
+        //     ("H14", IOPin(io.in.bits, 6)),
+        //     ("J13", IOPin(io.in.bits, 7)),
+
+        //     ("E10", IOPin(io.out.valid)),
+        //     ("A10", IOPin(io.out.ready)),
+        //     ("G10", IOPin(io.out.bits, 0)),
+        //     ("F9", IOPin(io.out.bits, 1)),
+        //     ("D8", IOPin(io.out.bits, 2)),
+        //     ("G12", IOPin(io.out.bits, 3)),
+        //     ("D11", IOPin(io.out.bits, 4)),
+        //     ("G11", IOPin(io.out.bits, 5)),
+        //     ("B10", IOPin(io.out.bits, 6)),
+        //     ("H8", IOPin(io.out.bits, 7)),
+        //   )
+        // } else {
+        //   Seq(
+        //     // ("E10", clkIO),
+        //     // ("D10", IOPin(io.out.valid)),
+        //     // ("C12", IOPin(io.out.ready)),
+        //     // ("C11", IOPin(io.out.bits, 0)),
+        //     // ("E11", IOPin(io.in.valid)),
+        //     // ("D11", IOPin(io.in.ready)),
+        //     // ("F14", IOPin(io.in.bits, 0)),
+
+        //     ("E13", clkIO),
+        //     ("H13", IOPin(io.out.valid)),
+        //     ("C11", IOPin(io.out.ready)),
+        //     ("H9", IOPin(io.out.bits, 0)),
+        //     ("A8", IOPin(io.in.valid)),
+        //     ("G9", IOPin(io.in.ready)),
+        //     ("D10", IOPin(io.in.bits, 0)),
+        //   )
+        // }
+
+        val packagePinsWithPackageIOs = Seq(
+          ("J11", clkIO),
+
+          
+          ("F12", IOPin(io.in.valid)),
+          ("H12", IOPin(io.in.ready)),
+
+          ("F8", IOPin(io.in.bits, 0)),
+          ("F10", IOPin(io.in.bits, 1)),
+          ("D9", IOPin(io.in.bits, 2)),
+          ("A9", IOPin(io.in.bits, 3)),
+          ("E11", IOPin(io.in.bits, 4)),
+          ("C9", IOPin(io.in.bits, 5)),
+          ("H14", IOPin(io.in.bits, 6)),
+          ("J13", IOPin(io.in.bits, 7)),
+
+
+          ("E10", IOPin(io.out.valid)),
+          ("A10", IOPin(io.out.ready)),
+
+          ("G10", IOPin(io.out.bits, 0)),
+          ("F9", IOPin(io.out.bits, 1)),
+          ("D8", IOPin(io.out.bits, 2)),
+          ("G12", IOPin(io.out.bits, 3)),
+          ("D11", IOPin(io.out.bits, 4)),
+          ("G11", IOPin(io.out.bits, 5)),
+          ("B10", IOPin(io.out.bits, 6)),
+          ("H8", IOPin(io.out.bits, 7)),
+
+        )
+
+
+
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)
           ath.xdc.addIOStandard(io, "LVCMOS12")

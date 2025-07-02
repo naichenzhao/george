@@ -40,7 +40,8 @@ class WithBoraLakeTweaks(freqMHz: Double = 20) extends Config(
   new chipyard.clocking.WithPassthroughClockGenerator ++
 
   new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(0x40000000L)) ++ // 4GB
+  // new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(0x40000000L)) ++ // 4GB
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
 
   new testchipip.serdes.WithNoSerialTL ++
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
@@ -56,7 +57,7 @@ class BoraLakeRocketConfig extends Config(
 
 // A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
 class BoraLakeDSP24Config extends Config(
-  new testchipip.soc.WithMbusScratchpad(base = 0x10080000L, size = 256 * 1024) ++
+  new testchipip.soc.WithMbusScratchpad(base = 0x90000000L, size = 256 * 1024) ++
 
   new WithBoraLakeTweaks(freqMHz = 50) ++
   new WithBoraLakeSerialTLToGPIO ++
@@ -65,25 +66,36 @@ class BoraLakeDSP24Config extends Config(
   //=============================
   // Setup the SerialTL side on the bringup device
   //=============================
-  new testchipip.serdes.old.WithSerialTL(Seq(
-    testchipip.serdes.old.SerialTLParams(
-      manager = Some(testchipip.serdes.old.SerialTLManagerParams(
-        memParams = Seq(
-          testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
-            address = BigInt("00000000", 16),
-            size    = BigInt("10070000", 16)),
-          testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
-            address = BigInt("14000000", 16),
-            size    = BigInt("6C000000", 16)),
-      ))),
-      client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-      phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50)), // bringup platform provides the clock
+  // new testchipip.serdes.old.WithSerialTL(Seq(
+  //   testchipip.serdes.old.SerialTLParams(
+  //     manager = Some(testchipip.serdes.old.SerialTLManagerParams(
+  //       memParams = Seq(
+  //         testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+  //           address = BigInt("00000000", 16),
+  //           size    = BigInt("10070000", 16)),
+  //         testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+  //           address = BigInt("14000000", 16),
+  //           size    = BigInt("6C000000", 16)),
+  //     ))),
+  //     client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+  //     phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50)), // bringup platform provides the clock
     
-    testchipip.serdes.old.SerialTLParams(
-      manager = None,
-      client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-      phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=1, freqMHz = 50)), // bringup platform provides the clock   
-    )) ++
+  //   testchipip.serdes.old.SerialTLParams(
+  //     manager = None,
+  //     client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+  //     phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=1, freqMHz = 50)), // bringup platform provides the clock   
+  //   )) ++
+
+  new testchipip.serdes.old.WithSerialTL(Seq(testchipip.serdes.old.SerialTLParams(
+    manager = Some(testchipip.serdes.old.SerialTLManagerParams(
+      memParams = Seq(testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+        address = BigInt("00000000", 16),
+        size    = BigInt("80000000", 16)
+      ))
+    )),
+    client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+    phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50) // bringup platform provides the clock
+  ))) ++
 
   //============================
   // Setup bus topology on the bringup system

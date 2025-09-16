@@ -53,10 +53,10 @@ class WithGeorgeFPGASerialTLToGPIO extends HarnessBinder({
     val harnessIO = IO(chiselTypeOf(port.io)).suggestName(s"serial_tl_old_${port.portId}")
     harnessIO <> port.io
     harnessIO match {
-      case io: testchipip.serdes.old.DecoupledSerialIO => {
+      case io: DecoupledPhitIO => {
         val clkIO = io match {
-          case io: testchipip.serdes.old.InternalSyncSerialIO => IOPin(io.clock_out)
-          case io: testchipip.serdes.old.ExternalSyncSerialIO => IOPin(io.clock_in)
+          case io: InternalSyncPhitIO => IOPin(io.clock_out)
+          case io: ExternalSyncPhitIO => IOPin(io.clock_in)
         }
 
         val packagePinsWithPackageIOs = if (port.portId == 0) {

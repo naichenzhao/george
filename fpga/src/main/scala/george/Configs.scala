@@ -40,9 +40,6 @@ class WithGeorgeFPGATweaks(freqMHz: Double = 50) extends Config(
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
-
-  new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
   
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 

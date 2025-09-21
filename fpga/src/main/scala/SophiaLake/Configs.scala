@@ -27,74 +27,65 @@ class WithNoDesignKey extends Config((site, here, up) => {
 })
 
 // By default, this uses the on-board USB-UART for the TSI-over-UART link
-class WithSophiaLakeTweaks(freqMHz: Double = 50) extends Config(
+class WithSophiaLakeTweaks(freqMHz: Double = 10) extends Config(
   new WithSophiaLakeUARTTSI ++
   new WithSophiaLakeTDDRTL ++
 
   new WithNoDesignKey ++
   new chipyard.harness.WithSerialTLTiedOff ++
 
-  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
+  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 115200) ++
   
   new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
   new chipyard.clocking.WithPassthroughClockGenerator ++
 
-  new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
-  
+  new chipyard.config.WithTLBackingMemory ++
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 22) ++
+  new testchipip.serdes.WithNoSerialTL ++
+
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
-
-// class GeorgeRobotConfig extends Config(
-//   // new riskybear.WithRobotJoint(address=0x10080000L) ++
-//   // new WithGeorgeJoints ++
-
-//   // new testchipip.soc.WithMbusScratchpad(base = 0x10090000L, size = 256 * 1024) ++                  // Create internal scratchpad bank for testing
+class SophiaLakeDSP24Config extends Config(
+  new testchipip.soc.WithMbusScratchpad(base = 0x10080000L, size = 256 * 1024) ++
+  new chipyard.config.WithBroadcastManager ++
   
-//   new GeorgeBringupHostConfig)
-
-
+  new SophiaLakeBringupHostConfig)
 
 
 // A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
-class SophiaLakeDSP24Config extends Config(
-  // new WithSophiaLakeSerialTLToGPIO ++
-  new WithSophiaLakeTweaks(freqMHz = 50) ++
-  new chipyard.config.WithNoDebug ++ // no jtag
-  new chipyard.config.WithNoUART ++ // use UART for the UART-TSI thing instad
+class SophiaLakeBringupHostConfig extends Config(
+  new WithSophiaLakeSerialTLToGPIO ++
+  new WithSophiaLakeTweaks(freqMHz = 10) ++
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
   //=============================
   // Setup the SerialTL side on the bringup device
   //=============================
-  // new testchipip.serdes.old.WithSerialTL(Seq(
-  //   testchipip.serdes.old.SerialTLParams(
-  //     manager = Some(testchipip.serdes.old.SerialTLManagerParams(
-  //       memParams = Seq(
-  //         testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
-  //           address = BigInt("00000000", 16),
-  //           size    = BigInt("10070000", 16)),
-  //         testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
-  //           address = BigInt("14000000", 16),
-  //           size    = BigInt("6C000000", 16)),
-  //     ))),
-  //     client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-  //     phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50)), // bringup platform provides the clock
+  new testchipip.serdes.old.WithSerialTL(Seq(
+    testchipip.serdes.old.SerialTLParams(
+      manager = Some(testchipip.serdes.old.SerialTLManagerParams(
+        memParams = Seq(
+          testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+            address = BigInt("00000000", 16),
+            size    = BigInt("10070000", 16)),
+          testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+            address = BigInt("14000000", 16),
+            size    = BigInt("6C000000", 16)),
+      ))),
+      client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+      phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 10)), // bringup platform provides the clock
     
-  //   testchipip.serdes.old.SerialTLParams(
-  //     manager = None,
-  //     client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-  //     phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=1, freqMHz = 50)), // bringup platform provides the clock   
-  //   )) ++
-  new testchipip.serdes.WithNoSerialTL ++
+    testchipip.serdes.old.SerialTLParams(
+      manager = None,
+      client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+      phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=1, freqMHz = 10)), // bringup platform provides the clock   
+    )) ++
 
   //============================
   // Setup bus topology on the bringup system
   //============================
-  // new testchipip.soc.WithOffchipBusClient(SBUS,                                 // offchip bus hangs off the SBUS
-  //   blockRange = AddressSet.misaligned(0x100000000L, (BigInt(1) << 30) * 4)) ++ // offchip bus should not see the main memory of the testchip, since that can be accessed directly
-  // new testchipip.soc.WithOffchipBus ++                                          // offchip bus
-  new chipyard.config.WithBroadcastManager ++ // no l2
-  new freechips.rocketchip.rocket.WithNBigCores(1) ++
-  new chipyard.config.AbstractConfig)
+  new testchipip.soc.WithOffchipBusClient(SBUS,                                 // offchip bus hangs off the SBUS
+    blockRange = AddressSet.misaligned(0x100000000L, (BigInt(1) << 30) * 4)) ++ // offchip bus should not see the main memory of the testchip, since that can be accessed directly
+  new testchipip.soc.WithOffchipBus ++                                          // offchip bus
+  new chipyard.NoCoresConfig)

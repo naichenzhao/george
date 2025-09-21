@@ -26,7 +26,7 @@ class SophiaLakeHarness(override implicit val p: Parameters) extends SophiaLakeS
   val harnessSysPLLNode = harnessSysPLL()
   val dutFreqMHz = (dp(SystemBusKey).dtsFrequency.get / (1000 * 1000)).toInt
   val dutClock = ClockSinkNode(freqMHz = dutFreqMHz)
-  println(s"George FPGA Base Clock Freq: ${dutFreqMHz} MHz")
+  println(s"Sophia Lake FPGA Base Clock Freq: ${dutFreqMHz} MHz")
   val dutWrangler = LazyModule(new ResetWrangler())
   val dutGroup = ClockGroup()
   dutClock := dutWrangler.node := dutGroup := harnessSysPLLNode

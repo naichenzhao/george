@@ -21,6 +21,10 @@ import freechips.rocketchip.diplomacy._
 import freechips.rocketchip.subsystem.{MBUS, SBUS}
 import testchipip.soc.{OBUS}
 
+// don't use FPGAShell's DesignKey
+class WithNoDesignKey extends Config((site, here, up) => {
+  case DesignKey => (p: Parameters) => new SimpleLazyRawModule()(p)
+})
 
 //==========================================================
 // DSP 25 Sophia Lake Config
@@ -43,10 +47,6 @@ class SophiaLakeDSP25Config extends Config(
   new SophiaLakeConfig(freqMHz = 50))
 
 
-
-
-
-
 //==========================================================
 // BearlyML 25 Sophia Lake Config
 //==========================================================
@@ -63,12 +63,6 @@ class SophiaLakeBML25Config extends Config(
     )
   )) ++
   new SophiaLakeConfig(freqMHz = 50))
-
-
-
-
-
-
 
 
 //==========================================================
@@ -101,49 +95,21 @@ class SophiaLakeDSP24Config extends Config(
   new SophiaLakeConfig(freqMHz = 50))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //==========================================================
 // Generic Config Classes
 //==========================================================
 
-// don't use FPGAShell's DesignKey
-class WithNoDesignKey extends Config((site, here, up) => {
-  case DesignKey => (p: Parameters) => new SimpleLazyRawModule()(p)
-})
-
-
 // By default, this uses the on-board USB-UART for the TSI-over-UART link
 class WithSophiaLakeTweaks(freqMHz: Double) extends Config(
   new WithNoDesignKey ++
-  new WithSophiaLakeUARTTSI ++
+  // new WithSophiaLakeUARTTSI ++
+  new WithSophiaLakeFTDISPITSI ++
   new WithSophiaLakeTDDRTL ++
   new chipyard.config.WithBroadcastManager ++
   new chipyard.harness.WithSerialTLTiedOff ++
 
-  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
+  new testchipip.tsi.WithSPITSIClient ++
+  // new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
   new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
   new chipyard.harness.WithAllClocksFromHarnessClockInstantiator ++
@@ -174,3 +140,13 @@ class RegProgConfig extends Config(
 
   new chipyard.config.WithI2C(address = 0x10081000) ++
   new chipyard.NoCoresConfig)
+
+class SophiaLakeRocketConfig extends Config(
+  new WithSophiaLakeSPISDCard ++
+  new WithSophiaLakePMODJTAG ++
+  new WithSophiaLakePMODUART ++
+  new WithSophiaLakeTweaks(freqMHz = 50) ++
+  new chipyard.config.WithSPI ++ 
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithBroadcastManager ++ // no l2
+  new chipyard.RocketConfig)

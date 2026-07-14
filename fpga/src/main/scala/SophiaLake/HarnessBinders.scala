@@ -143,13 +143,13 @@ class WithBML25SophiaLakeSerialTLToGPIO extends HarnessBinder({
             ("C22", IOPin(io.in.bits.phit, 7)),
           )
         }
-        
+
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)
           ath.xdc.addIOStandard(io, "LVCMOS12")
         }}
 
-        
+
         // Don't add IOB to the clock, if its an input
         io match {
           case io: DecoupledInternalSyncPhitIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
@@ -159,14 +159,12 @@ class WithBML25SophiaLakeSerialTLToGPIO extends HarnessBinder({
             ath.xdc.addIOB(io)
           }}
         }
-        
+
 
         ath.sdc.addClock("ser_tl_clock", clkIO, 100)
         ath.sdc.addGroup(pins = Seq(clkIO))
         ath.xdc.clockDedicatedRouteFalse(clkIO)
       }
-
-      
     }
   }
 })
@@ -213,13 +211,13 @@ class WithDSP25SophiaLakeSerialTLToGPIO extends HarnessBinder({
             ("A14", IOPin(io.in.bits.phit, 7)),
           )
         }
-        
+
         packagePinsWithPackageIOs foreach { case (pin, io) => {
           ath.xdc.addPackagePin(io, pin)
           ath.xdc.addIOStandard(io, "LVCMOS12")
         }}
 
-        
+
         // Don't add IOB to the clock, if its an input
         io match {
           case io: DecoupledInternalSyncPhitIO => packagePinsWithPackageIOs foreach { case (pin, io) => {
@@ -229,14 +227,14 @@ class WithDSP25SophiaLakeSerialTLToGPIO extends HarnessBinder({
             ath.xdc.addIOB(io)
           }}
         }
-        
+
 
         ath.sdc.addClock("ser_tl_clock", clkIO, 100)
         ath.sdc.addGroup(pins = Seq(clkIO))
         ath.xdc.clockDedicatedRouteFalse(clkIO)
       }
 
-      
+
     }
   }
 })
@@ -302,7 +300,6 @@ class WithJohnPMODPWM extends HarnessBinder({
   }
 })
 
-
 class WithJohnPMODI2C extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: I2CPinsPort, chipId: Int) => {
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[SophiaLakeHarness]
@@ -319,7 +316,6 @@ class WithJohnPMODI2C extends HarnessBinder({
     } }
   }
 })
-
 
 class WithRegulatorI2C extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: I2CPinsPort, chipId: Int) => {
@@ -339,6 +335,38 @@ class WithRegulatorI2C extends HarnessBinder({
   }
 })
 
+class WithSophiaLakeSPISDCard extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: SPIPort, chipId: Int) => {
+    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[SophiaLakeHarness]
+    val harnessIO = IO(new Bundle {
+      val sck = Output(Bool())
+      val mosi = Output(Bool())
+      val miso = Input(Bool())
+      val csn  = Output(Bool())
+    }).suggestName("spi")
+
+    // Kinda hacky but I don't feel like making a whole new type and IO binder to do the IO cells properly
+    harnessIO.sck := port.io.sck
+    harnessIO.mosi := port.io.dq(0).o
+    port.io.dq(0).i := false.B
+    port.io.dq(1).i := harnessIO.miso
+    port.io.dq(2).i := false.B
+    port.io.dq(3).i := false.B
+    harnessIO.csn := port.io.cs(0)
+
+    val packagePinsWithPackageIOs = Seq(
+      ("W16",  IOPin(harnessIO.sck)),
+      ("W15",  IOPin(harnessIO.mosi)),
+      ("AB11", IOPin(harnessIO.miso)),
+      ("Y14",  IOPin(harnessIO.csn)))
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      ath.xdc.addPackagePin(io, pin)
+      ath.xdc.addIOStandard(io, "LVCMOS33")
+      ath.xdc.addIOB(io)
+    } }
+  }
+})
 
 // class WithJohnPMODSPI extends HarnessBinder({
 //   case (th: HasHarnessInstantiators, port: SPIPort, chipId: Int) => {
@@ -360,7 +388,49 @@ class WithRegulatorI2C extends HarnessBinder({
 //   }
 // })
 
+class WithSophiaLakePMODJTAG extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: JTAGPort, chipId: Int) => {
+    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[SophiaLakeHarness]
+    val harnessIO = IO(new JTAGChipIO(false)).suggestName("jtag")
+    harnessIO.TDO := port.io.TDO
+    port.io.TCK := harnessIO.TCK
+    port.io.TDI := harnessIO.TDI
+    port.io.TMS := harnessIO.TMS
+    port.io.reset.foreach(_ := th.referenceReset)
 
+    ath.sdc.addClock("JTCK", IOPin(harnessIO.TCK), 10)
+    ath.sdc.addGroup(clocks = Seq("JTCK"))
+    ath.xdc.clockDedicatedRouteFalse(IOPin(harnessIO.TCK))
+    val packagePinsWithPackageIOs = Seq(
+      ("AA13", IOPin(harnessIO.TCK)),
+      ("AB17", IOPin(harnessIO.TMS)),
+      ("AB16", IOPin(harnessIO.TDI)),
+      ("AA15", IOPin(harnessIO.TDO))
+    )
+
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      ath.xdc.addPackagePin(io, pin)
+      ath.xdc.addIOStandard(io, "LVCMOS33")
+      ath.xdc.addPullup(io)
+    } }
+  }
+})
+
+class WithSophiaLakePMODUART(rxdPin: String = "AA16", txdPin: String = "AB13") extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: UARTPort, chipId: Int) => {
+    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[SophiaLakeHarness]
+    val harnessIO = IO(chiselTypeOf(port.io)).suggestName("uart")
+    harnessIO <> port.io
+    val packagePinsWithPackageIOs = Seq(
+      (rxdPin, IOPin(harnessIO.rxd)),
+      (txdPin, IOPin(harnessIO.txd)))
+    packagePinsWithPackageIOs foreach { case (pin, io) => {
+      ath.xdc.addPackagePin(io, pin)
+      ath.xdc.addIOStandard(io, "LVCMOS33")
+      ath.xdc.addIOB(io)
+    } }
+  }
+})
 class WithSophiaLakeFTDISPITSI extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: SPITSIPort, chipId: Int) => {
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[SophiaLakeHarness]
@@ -372,11 +442,11 @@ class WithSophiaLakeFTDISPITSI extends HarnessBinder({
     ath.xdc.clockDedicatedRouteFalse(IOPin(harnessIO.sck))
     val packagePinsWithPackageIOs = Seq(
       ("T21", IOPin(harnessIO.sck)),
-      ("V22", IOPin(harnessIO.mosi)),
-      ("R21", IOPin(harnessIO.miso)),
-      ("U21", IOPin(harnessIO.csn))
+      ("U21", IOPin(harnessIO.mosi)),
+      ("V22", IOPin(harnessIO.miso)),
+      ("AB20", IOPin(harnessIO.csn))
     )
-    
+
     packagePinsWithPackageIOs foreach { case (pin, io) => {
       ath.xdc.addPackagePin(io, pin)
       ath.xdc.addIOStandard(io, "LVCMOS33")

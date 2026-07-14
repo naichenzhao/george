@@ -40,15 +40,13 @@ class WithBoraLakeTweaks(freqMHz: Double = 20) extends Config(
   new chipyard.clocking.WithPassthroughClockGenerator ++
 
   new chipyard.config.WithTLBackingMemory ++ // FPGA-shells converts the AXI to TL for us
-  // new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(0x40000000L)) ++ // 4GB
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(256) << 20) ++ // 256mb
-
-  new testchipip.serdes.WithNoSerialTL ++
+  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(4) << 30) ++ // 4GB Ram
   new freechips.rocketchip.subsystem.WithoutTLMonitors)
 
 
 class BoraLakeRocketConfig extends Config(
   new WithBoraLakeTweaks(freqMHz = 50) ++
+  new testchipip.serdes.WithNoSerialTL ++
   new chipyard.config.WithBroadcastManager ++ // no l2
   new chipyard.RocketConfig)
 
@@ -57,16 +55,22 @@ class BoraLakeRocketConfig extends Config(
 
 // A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
 class BoraLakeDSP24Config extends Config(
-  new testchipip.soc.WithMbusScratchpad(base = 0x90000000L, size = 256 * 1024) ++
-  new testchipip.soc.WithMbusScratchpad(base = 0x10080000L, size = 256 * 1024) ++
+  new chipyard.iobinders.WithI2CIOCells ++
+  new WithRegulatorI2C ++
+
+  new chipyard.config.WithI2C(address = 0x10081000) ++
+
+  // new testchipip.soc.WithMbusScratchpad(base = 0x80000000L, size = 256 * 1024) ++
+  // new testchipip.soc.WithMbusScratchpad(base = 0x10080000L, size = 256 * 1024) ++
 
   new WithBoraLakeTweaks(freqMHz = 10) ++
-  new WithBoraLakeSerialTLToGPIO ++
+  new WithDSP24SerialTLToGPIO ++
   
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
   //=============================
   // Setup the SerialTL side on the bringup device
   //=============================
+  new testchipip.serdes.WithNoSerialTL ++
   new testchipip.serdes.old.WithSerialTL(Seq(
     testchipip.serdes.old.SerialTLParams(
       manager = Some(testchipip.serdes.old.SerialTLManagerParams(
@@ -87,21 +91,45 @@ class BoraLakeDSP24Config extends Config(
       phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=1, freqMHz = 10)), // bringup platform provides the clock   
     )) ++
 
-  // new testchipip.serdes.old.WithSerialTL(Seq(testchipip.serdes.old.SerialTLParams(
-  //   manager = Some(testchipip.serdes.old.SerialTLManagerParams(
-  //     memParams = Seq(testchipip.serdes.old.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
-  //       address = BigInt("00000000", 16),
-  //       size    = BigInt("80000000", 16)
-  //     ))
-  //   )),
-  //   client = Some(testchipip.serdes.old.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-  //   phyParams = testchipip.serdes.old.InternalSyncSerialParams(width=8, freqMHz = 50) // bringup platform provides the clock
-  // ))) ++
-
   //============================
   // Setup bus topology on the bringup system
   //============================
   new testchipip.soc.WithOffchipBusClient(SBUS,                                 // offchip bus hangs off the SBUS
     blockRange = AddressSet.misaligned(0x100000000L, (BigInt(1) << 30) * 4)) ++ // offchip bus should not see the main memory of the testchip, since that can be accessed directly
+  new testchipip.soc.WithOffchipBus ++                                          // offchip bus
+  new chipyard.NoCoresConfig)
+
+
+// A simple config demonstrating a "bringup prototype" to bringup the ChipLikeRocketconfig
+class BoraLakeDSP25Config extends Config(
+  // new testchipip.soc.WithMbusScratchpad(base = 0x80000000L, size = 256 * 1024) ++
+  // new testchipip.soc.WithMbusScratchpad(base = 0x10080000L, size = 256 * 1024) ++
+  
+  new WithDSP25SerialTLToGPIO ++
+  new WithBoraLakeTweaks(freqMHz = 10) ++
+  
+  new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
+  //=============================
+  // Setup the SerialTL side on the bringup device
+  //=============================
+  new testchipip.serdes.WithSerialTL(Seq(
+    testchipip.serdes.SerialTLParams(
+      manager = Some(testchipip.serdes.SerialTLManagerParams(
+        memParams = Seq(testchipip.serdes.ManagerRAMParams(                            // Bringup platform can access all memory from 0 to DRAM_BASE
+          address = BigInt("00000000", 16),
+          size    = BigInt("80000000", 16)
+        )),
+        slaveWhere = OBUS
+      )),
+      client = Some(testchipip.serdes.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
+      phyParams = testchipip.serdes.DecoupledInternalSyncSerialPhyParams(phitWidth=8, flitWidth=16, freqMHz = 10) // bringup platform provides the clock
+    )
+  )) ++
+
+  //============================
+  // Setup bus topology on the bringup system
+  //============================
+  new testchipip.soc.WithOffchipBusClient(SBUS,                                 // offchip bus hangs off the SBUS
+    blockRange = AddressSet.misaligned(0x80000000L, (BigInt(1) << 30) * 4)) ++ // offchip bus should not see the main memory of the testchip, since that can be accessed directly
   new testchipip.soc.WithOffchipBus ++                                          // offchip bus
   new chipyard.NoCoresConfig)

@@ -32,7 +32,7 @@ class WithBoraLakeTweaks(freqMHz: Double = 20) extends Config(
   new WithBoraLakeTDDRTL ++
 
   new WithNoDesignKey ++
-  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 115200) ++
+  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
   new chipyard.harness.WithSerialTLTiedOff ++
   new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
@@ -106,7 +106,7 @@ class BoraLakeDSP25Config extends Config(
   // new testchipip.soc.WithMbusScratchpad(base = 0x10080000L, size = 256 * 1024) ++
   
   new WithDSP25SerialTLToGPIO ++
-  new WithBoraLakeTweaks(freqMHz = 10) ++
+  new WithBoraLakeTweaks(freqMHz = 50) ++
   
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++                // Don't generate IOCells for the serial TL (this design maps to FPGA)
   //=============================
@@ -122,7 +122,7 @@ class BoraLakeDSP25Config extends Config(
         slaveWhere = OBUS
       )),
       client = Some(testchipip.serdes.SerialTLClientParams()),                                        // Allow chip to access this device's memory (DRAM)
-      phyParams = testchipip.serdes.DecoupledInternalSyncSerialPhyParams(phitWidth=8, flitWidth=16, freqMHz = 10) // bringup platform provides the clock
+      phyParams = testchipip.serdes.DecoupledInternalSyncSerialPhyParams(phitWidth=8, flitWidth=16, freqMHz = 50) // bringup platform provides the clock
     )
   )) ++
 

@@ -187,6 +187,20 @@ ifeq ($(SUB_PROJECT),boralake)
 	FPGA_BRAND        ?= xilinx
 endif
 
+ifeq ($(SUB_PROJECT),fletcherlake)
+	SBT_PROJECT       ?= chipyard_fpga
+	MODEL             ?= FletcherLakeHarness
+	VLOG_MODEL        ?= FletcherLakeHarness
+	MODEL_PACKAGE     ?= chipyard.fpga.fletcherlake
+	CONFIG            ?= FletcherLakeDSP25Config
+	CONFIG_PACKAGE    ?= chipyard.fpga.fletcherlake
+	GENERATOR_PACKAGE ?= chipyard
+	TB                ?= none # unused
+	TOP               ?= ChipTop
+	BOARD             ?= fletcherlake
+	FPGA_BRAND        ?= xilinx
+endif
+
 ifeq ($(SUB_PROJECT),sophialake)
 	SBT_PROJECT       ?= chipyard_fpga
 	MODEL             ?= SophiaLakeHarness

@@ -91,6 +91,54 @@ class WithFletcherLakeDSP25SerialTLToGPIO extends HarnessBinder({
     }
 })
 
+/**
+  * Dedicated RP2350B-to-FPGA SerialTL link on Fletcher Lake's FPGA_MCU_D bus.
+  *
+  * This is separate from the physical DSP24 links below.  The FPGA sources a
+  * 5 MHz clock on D4, so no non-CC FPGA pin is used as an incoming clock.
+  * All signals are direct 3.3 V connections and are constrained LVCMOS33.
+  */
+class WithFletcherLakeRP2350SerialTLToGPIO extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: SerialTLPort, chipId: Int) =>
+    val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[FletcherLakeHarness]
+    val harnessIO = IO(chiselTypeOf(port.io)).suggestName("rp2350_serial_tl")
+    harnessIO <> port.io
+    harnessIO match {
+      case io: DecoupledInternalSyncPhitIO =>
+        require(io.phitWidth == 4, "Fletcher Lake RP2350 SerialTL must be 4 bits")
+        val clkIO = IOPin(io.clock_out)
+        val packagePinsWithPackageIOs = Seq(
+          // FPGA_MCU_D4: FPGA -> RP2350 forwarded clock (RP2350 GP16)
+          ("W25", clkIO),
+
+          // FPGA -> RP2350: D0..D3 data, D5 valid, D6 ready
+          ("T25", IOPin(io.out.bits.phit, 0)),
+          ("U26", IOPin(io.out.bits.phit, 1)),
+          ("U25", IOPin(io.out.bits.phit, 2)),
+          ("V26", IOPin(io.out.bits.phit, 3)),
+          ("W26", IOPin(io.out.valid)),
+          ("Y25", IOPin(io.out.ready)),
+
+          // RP2350 -> FPGA: D8..D11 data, D12 valid, D13 ready
+          ("V23", IOPin(io.in.bits.phit, 0)),
+          ("T23", IOPin(io.in.bits.phit, 1)),
+          ("W24", IOPin(io.in.bits.phit, 2)),
+          ("V24", IOPin(io.in.bits.phit, 3)),
+          ("U24", IOPin(io.in.valid)),
+          ("T24", IOPin(io.in.ready)))
+
+        packagePinsWithPackageIOs.foreach { case (pin, pinIO) =>
+          ath.xdc.addPackagePin(pinIO, pin)
+          ath.xdc.addIOStandard(pinIO, "LVCMOS33")
+          ath.xdc.addIOB(pinIO)
+        }
+
+        ath.sdc.addClock("rp2350_serial_tl_clock", clkIO, 5)
+        ath.sdc.addGroup(pins = Seq(clkIO))
+        ath.xdc.clockDedicatedRouteFalse(clkIO)
+    }
+})
+
 class WithFletcherLakeDSP24SerialTLToGPIO extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: OldSerialTLPort, chipId: Int) =>
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[FletcherLakeHarness]

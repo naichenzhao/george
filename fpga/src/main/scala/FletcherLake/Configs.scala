@@ -43,11 +43,24 @@ class FletcherLakeDSP24Config extends Config(
   new WithFletcherLakeRegulatorI2C ++
   new chipyard.config.WithI2C(address = 0x10081000) ++
 
+  // Independent RP2350-facing modern SerialTL link.  Do not change the two
+  // fixed-width legacy SerialTL links connected to the physical DSP24 below.
+  new WithFletcherLakeRP2350SerialTLToGPIO ++
+  new testchipip.serdes.WithSerialTL(Seq(
+    testchipip.serdes.SerialTLParams(
+      client = Some(testchipip.serdes.SerialTLClientParams(totalIdBits = 4)),
+      manager = None,
+      phyParams = testchipip.serdes.DecoupledInternalSyncSerialPhyParams(
+        phitWidth = 4,
+        flitWidth = 16,
+        freqMHz = 5)
+    )
+  )) ++
+
   new WithFletcherLakeTweaks(freqMHz = 10) ++
   new WithFletcherLakeDSP24SerialTLToGPIO ++
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++
 
-  new testchipip.serdes.WithNoSerialTL ++
   new testchipip.serdes.old.WithSerialTL(Seq(
     testchipip.serdes.old.SerialTLParams(
       manager = Some(testchipip.serdes.old.SerialTLManagerParams(

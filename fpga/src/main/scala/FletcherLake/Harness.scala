@@ -51,7 +51,8 @@ class FletcherLakeHarness(override implicit val p: Parameters) extends FletcherL
 
   class HarnessLikeImpl extends Impl with HasHarnessInstantiators {
     allLeds.foreach(_ := DontCare)
-    clockOverlay.overlayOutput.node.out(0)._1.reset := ~resetPin
+    // resetPin is normalized by FletcherLakeShell to active-high asserted.
+    clockOverlay.overlayOutput.node.out(0)._1.reset := resetPin
 
     val clk50MHz = clockOverlay.overlayOutput.node.out.head._1.clock
 

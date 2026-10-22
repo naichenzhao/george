@@ -7,9 +7,8 @@ import org.chipsalliance.diplomacy.nodes.HeterogeneousBag
 import sifive.blocks.devices.uart.UARTPortIO
 import sifive.fpgashells.shell.IOPin
 import chipyard.harness._
-import chipyard.iobinders.I2CPinsPort
+import chipyard.iobinders._
 import testchipip.serdes._
-import testchipip.serdes.old.OldSerialTLPort
 
 class WithFletcherLakeUARTTSI extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: UARTTSIPort, chipId: Int) =>

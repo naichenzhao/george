@@ -86,14 +86,13 @@ class FletcherLakeDSP24Config extends Config(
   new testchipip.soc.WithOffchipBus ++
   new chipyard.NoCoresConfig)
 
-// DSP25 bring-up plus an on-FPGA 64 KiB scratchpad at 0x1_0000_0000 that
+// DSP25 bring-up plus an on-FPGA 64 KiB scratchpad at 0x1_8000_0000 that
 // UART-TSI can reach without the DDR3 controller: separates "UART-TSI link is
-// dead" from "DDR never calibrated" (which also shows on FPGA_LED3).  ExtMem is
-// shrunk to 2 GiB so the scratchpad sits above it inside the on-FPGA address
-// window; everything below 0x8000_0000 still goes off-chip to the DSP25.
+// dead" from "DDR never calibrated" (which also shows on FPGA_LED3).  The
+// scratchpad sits just above the 4 GiB DDR window (0x8000_0000-0x1_7FFF_FFFF);
+// everything below 0x8000_0000 still goes off-chip to the DSP25.
 class FletcherLakeDSP25DiagConfig extends Config(
-  new testchipip.soc.WithMbusScratchpad(base = 0x100000000L, size = 64 << 10) ++
-  new freechips.rocketchip.subsystem.WithExtMemSize(BigInt(2) << 30) ++
+  new testchipip.soc.WithMbusScratchpad(base = 0x180000000L, size = 64 << 10) ++
   new FletcherLakeDSP25Config)
 
 // Bring-up prototype for the DSP25 chip.

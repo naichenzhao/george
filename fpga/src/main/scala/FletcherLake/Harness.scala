@@ -71,7 +71,9 @@ class FletcherLakeHarness(override implicit val p: Parameters) extends FletcherL
     }
 
     statusLeds(2) := 1.U
-    statusLeds(3) := 1.U
+    // FPGA_LED3 (M22): DDR3 controller finished calibration. Until it does,
+    // ddrBlockDuringReset holds every memory access, so TSI reads of DDR hang.
+    statusLeds(3) := ddrOverlay.mig.module.io.port.init_calib_complete
     statusLeds(4) := 1.U
     statusLeds(5) := 1.U
 

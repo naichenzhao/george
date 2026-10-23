@@ -30,11 +30,11 @@ class FletcherLakeHarness(override implicit val p: Parameters) extends FletcherL
 
   harnessSysPLLNode := clockOverlay.overlayOutput.node
 
-  // Initial Fletcher Lake bring-up reuses the Bora Lake DDR3 subsystem. This
-  // cast should change when Fletcher Lake gets a distinct MIG.
+  // Fletcher Lake has its own MIG (dual-rank 8 GiB SO-DIMM); the shell's
+  // overlay type is DDRFletcherLakePlacedOverlay (fpga-shells FletcherLakeShell).
   val ddrOverlay = dp(DDROverlayKey).head
     .place(DDRDesignInput(dp(ExtTLMem).get.master.base, dutWrangler.node, harnessSysPLLNode))
-    .asInstanceOf[DDRBoraLakePlacedOverlay]
+    .asInstanceOf[DDRFletcherLakePlacedOverlay]
   val ddrClient = TLClientNode(Seq(TLMasterPortParameters.v1(Seq(TLMasterParameters.v1(
     name = "chip_ddr",
     sourceId = IdRange(0, 1 << dp(ExtTLMem).get.master.idBits)

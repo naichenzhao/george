@@ -15,12 +15,12 @@ class WithNoDesignKey extends Config((site, here, up) => {
 
 // Initial Fletcher Lake bring-up assumes the Bora Lake FPGA pinout. Keep the
 // platform-specific binders separate so the two can evolve independently.
-class WithFletcherLakeTweaks(freqMHz: Double = 20) extends Config(
+class WithFletcherLakeTweaks(freqMHz: Double = 20, tsiBaud: BigInt = 921600) extends Config(
   new WithFletcherLakeUARTTSI ++
   new WithFletcherLakeTDDRTL ++
 
   new WithNoDesignKey ++
-  new testchipip.tsi.WithUARTTSIClient(initBaudRate = 921600) ++
+  new testchipip.tsi.WithUARTTSIClient(initBaudRate = tsiBaud) ++
   new chipyard.harness.WithSerialTLTiedOff ++
   new chipyard.harness.WithHarnessBinderClockFreqMHz(freqMHz) ++
   new chipyard.config.WithUniformBusFrequencies(freqMHz) ++
@@ -53,11 +53,12 @@ class FletcherLakeDSP24Config extends Config(
       phyParams = testchipip.serdes.DecoupledInternalSyncSerialPhyParams(
         phitWidth = 4,
         flitWidth = 16,
-        freqMHz = 5)
+        freqMHz = 10)
     )
   )) ++
 
-  new WithFletcherLakeTweaks(freqMHz = 10) ++
+  // The 16x UART receiver needs at least 16 clocks per bit.
+  new WithFletcherLakeTweaks(freqMHz = 10, tsiBaud = 115200) ++
   new WithFletcherLakeDSP24SerialTLToGPIO ++
   new chipyard.iobinders.WithOldSerialTLPunchthrough ++
 

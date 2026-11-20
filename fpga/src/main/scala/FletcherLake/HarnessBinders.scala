@@ -94,7 +94,7 @@ class WithFletcherLakeDSP25SerialTLToGPIO extends HarnessBinder({
   * Dedicated RP2350B-to-FPGA SerialTL link on Fletcher Lake's FPGA_MCU_D bus.
   *
   * This is separate from the physical DSP24 links below.  The FPGA sources a
-  * 5 MHz clock on D4, so no non-CC FPGA pin is used as an incoming clock.
+  * 10 MHz clock on D4, so no non-CC FPGA pin is used as an incoming clock.
   * All signals are direct 3.3 V connections and are constrained LVCMOS33.
   */
 class WithFletcherLakeRP2350SerialTLToGPIO extends HarnessBinder({
@@ -132,7 +132,8 @@ class WithFletcherLakeRP2350SerialTLToGPIO extends HarnessBinder({
           ath.xdc.addIOB(pinIO)
         }
 
-        ath.sdc.addClock("rp2350_serial_tl_clock", clkIO, 5)
+        ath.sdc.addClock("rp2350_serial_tl_clock", clkIO,
+          port.params.phyParams.asInstanceOf[DecoupledInternalSyncSerialPhyParams].freqMHz)
         ath.sdc.addGroup(pins = Seq(clkIO))
         ath.xdc.clockDedicatedRouteFalse(clkIO)
     }

@@ -54,11 +54,10 @@ class FletcherLakeHarness(override implicit val p: Parameters) extends FletcherL
     // resetPin is normalized by FletcherLakeShell to active-high asserted.
     clockOverlay.overlayOutput.node.out(0)._1.reset := resetPin
 
-    val clk50MHz = clockOverlay.overlayOutput.node.out.head._1.clock
-
-    // Blink the status LEDs for a basic programming/clock sanity check.
-    withClockAndReset(clk50MHz, dutClock.in.head._1.reset) {
-      val period = (BigInt(50) << 20) / 2
+    // Keep the heartbeat registers in the domain of their synchronized reset.
+    // Crossing the 10 MHz DUT reset into 50 MHz heartbeat registers violated hold.
+    withClockAndReset(dutClock.in.head._1.clock, dutClock.in.head._1.reset) {
+      val period = (BigInt(dutFreqMHz) << 20) / 2
       val counter = RegInit(0.U(log2Ceil(period).W))
       val pulse = RegInit(0.U(1.W))
       counter := Mux(counter === (period - 1).U, 0.U, counter + 1.U)
@@ -74,8 +73,11 @@ class FletcherLakeHarness(override implicit val p: Parameters) extends FletcherL
     // FPGA_LED3 (M22): DDR3 controller finished calibration. Until it does,
     // ddrBlockDuringReset holds every memory access, so TSI reads of DDR hang.
     statusLeds(3) := ddrOverlay.mig.module.io.port.init_calib_complete
-    statusLeds(4) := 1.U
-    statusLeds(5) := 1.U
+    // LED17 (both halves off = healthy): FPGA_LED4 (P20, red) lights while the
+    // MIG's MMCM is not locked; FPGA_LED5 (N21, green) lights while the MIG holds
+    // its user-interface reset.  LEDs are active-low on this board.
+    statusLeds(4) := ddrOverlay.mig.module.io.port.mmcm_locked
+    statusLeds(5) := !ddrOverlay.mig.module.io.port.ui_clk_sync_rst
 
     harnessSysPLL.plls.foreach(_._1.getReset.get := pllReset)
 

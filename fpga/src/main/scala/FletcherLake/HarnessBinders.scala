@@ -139,7 +139,7 @@ class WithFletcherLakeRP2350SerialTLToGPIO extends HarnessBinder({
     }
 })
 
-class WithFletcherLakeDSP24SerialTLToGPIO extends HarnessBinder({
+class WithFletcherLakeDSP24SerialTLToGPIO(externalClockFreqMHz: Double = 100) extends HarnessBinder({
   case (th: HasHarnessInstantiators, port: OldSerialTLPort, chipId: Int) =>
     val ath = th.asInstanceOf[LazyRawModuleImp].wrapper.asInstanceOf[FletcherLakeHarness]
     val harnessIO = IO(chiselTypeOf(port.io)).suggestName(s"serial_tl_old_${port.portId}")
@@ -198,7 +198,12 @@ class WithFletcherLakeDSP24SerialTLToGPIO extends HarnessBinder({
             packagePinsWithPackageIOs.drop(1).foreach { case (_, pinIO) => ath.xdc.addIOB(pinIO) }
         }
 
-        ath.sdc.addClock("ser_tl_clock", clkIO, 100)
+        val serialFreqMHz = port.params.phyParams match {
+          case params: testchipip.serdes.old.InternalSyncSerialParams => params.freqMHz.toDouble
+          case _: testchipip.serdes.old.ExternalSyncSerialParams => externalClockFreqMHz
+        }
+        require(serialFreqMHz > 0, "DSP24 SerialTL clock frequency must be positive")
+        ath.sdc.addClock(s"dsp24_serial_tl_${port.portId}_clock", clkIO, serialFreqMHz)
         ath.sdc.addGroup(pins = Seq(clkIO))
         ath.xdc.clockDedicatedRouteFalse(clkIO)
     }
